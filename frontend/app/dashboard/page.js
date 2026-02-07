@@ -78,22 +78,22 @@ export default function DashboardOverview() {
       {/* Stats bar */}
       <div className="flex gap-3 mb-4">
         {displayStats.map((s) => (
-          <div key={s.label} className="flex items-center gap-2 rounded border px-3 py-2" style={{ background: "var(--card)", borderColor: "var(--border)" }}>
-            <span className="text-[11px] font-medium uppercase tracking-wider" style={{ color: "var(--muted)" }}>{s.label}</span>
-            <span className="text-sm font-semibold tabular-nums" style={{ color: "var(--foreground)" }}>{s.value}</span>
+          <div key={s.label} className="flex items-center gap-3 rounded-xl border border-gray-200 bg-white px-4 py-2.5 shadow-sm">
+            <span className="text-[11px] font-semibold uppercase tracking-wider text-gray-400">{s.label}</span>
+            <span className="text-sm font-semibold tabular-nums text-gray-900">{s.value}</span>
           </div>
         ))}
       </div>
 
       {/* Chat area */}
-      <div className="flex-1 overflow-auto rounded border" style={{ background: "var(--card)", borderColor: "var(--border)" }}>
+      <div className="flex-1 overflow-auto rounded-xl border border-gray-200 bg-white shadow-sm">
         <div className="p-5 space-y-4 min-h-full flex flex-col">
           {messages.length === 0 ? (
             <div className="flex-1 flex flex-col items-center justify-center text-center py-16">
-              <p className="text-lg font-medium" style={{ color: "var(--foreground)" }}>
+              <p className="text-lg font-medium text-gray-900">
                 Good {greeting}{firstName ? `, ${firstName}` : ""}
               </p>
-              <p className="mt-2 text-sm max-w-md" style={{ color: "var(--muted)" }}>
+              <p className="mt-2 text-sm max-w-md text-gray-500">
                 Ask me anything about your operations — reconciliation status, compliance alerts, risk metrics, or documents.
               </p>
               <div className="mt-6 flex flex-wrap gap-2 justify-center max-w-lg">
@@ -106,10 +106,7 @@ export default function DashboardOverview() {
                   <button
                     key={q}
                     onClick={() => { setInput(q); inputRef.current?.focus(); }}
-                    className="rounded border px-3 py-1.5 text-xs transition-colors"
-                    style={{ borderColor: "var(--border)", color: "var(--muted)" }}
-                    onMouseEnter={(e) => { e.currentTarget.style.borderColor = "var(--accent)"; e.currentTarget.style.color = "var(--accent)"; }}
-                    onMouseLeave={(e) => { e.currentTarget.style.borderColor = "var(--border)"; e.currentTarget.style.color = "var(--muted)"; }}
+                    className="rounded-lg border border-gray-200 px-3 py-1.5 text-xs text-gray-500 transition-all hover:border-blue-300 hover:text-blue-600 hover:shadow-sm"
                   >
                     {q}
                   </button>
@@ -121,14 +118,14 @@ export default function DashboardOverview() {
               {messages.map((m, i) => (
                 <div key={i} className={`flex ${m.role === "user" ? "justify-end" : "justify-start"}`}>
                   <div
-                    className="max-w-[75%] rounded px-4 py-3"
-                    style={{
-                      background: m.role === "user" ? "var(--accent)" : "var(--background)",
-                      color: m.role === "user" ? "white" : "var(--foreground)",
-                    }}
+                    className={`max-w-[75%] rounded-xl px-4 py-3 ${
+                      m.role === "user"
+                        ? "bg-blue-600 text-white"
+                        : "bg-slate-50 text-gray-900"
+                    }`}
                   >
                     {m.role === "assistant" && (
-                      <p className="text-[10px] font-semibold uppercase tracking-wider mb-1" style={{ color: "var(--muted)" }}>Assisto</p>
+                      <p className="text-[10px] font-semibold uppercase tracking-wider mb-1 text-gray-400">Assisto</p>
                     )}
                     <p className="text-[13px] leading-relaxed whitespace-pre-wrap">{m.content}</p>
                   </div>
@@ -136,11 +133,11 @@ export default function DashboardOverview() {
               ))}
               {sending && (
                 <div className="flex justify-start">
-                  <div className="rounded px-4 py-3" style={{ background: "var(--background)" }}>
+                  <div className="rounded-xl bg-slate-50 px-4 py-3">
                     <div className="flex items-center gap-1.5">
-                      <div className="h-1.5 w-1.5 rounded-full animate-pulse" style={{ background: "var(--muted)" }} />
-                      <div className="h-1.5 w-1.5 rounded-full animate-pulse" style={{ background: "var(--muted)", animationDelay: "0.2s" }} />
-                      <div className="h-1.5 w-1.5 rounded-full animate-pulse" style={{ background: "var(--muted)", animationDelay: "0.4s" }} />
+                      <div className="h-1.5 w-1.5 rounded-full bg-gray-400 animate-pulse" />
+                      <div className="h-1.5 w-1.5 rounded-full bg-gray-400 animate-pulse [animation-delay:0.2s]" />
+                      <div className="h-1.5 w-1.5 rounded-full bg-gray-400 animate-pulse [animation-delay:0.4s]" />
                     </div>
                   </div>
                 </div>
@@ -159,15 +156,13 @@ export default function DashboardOverview() {
           onChange={(e) => setInput(e.target.value)}
           onKeyDown={handleKeyDown}
           placeholder="Ask about your operations..."
-          className="flex-1 rounded border px-4 py-2.5 text-sm"
-          style={{ background: "var(--card)", borderColor: "var(--border)", color: "var(--foreground)" }}
+          className="flex-1 rounded-xl border border-gray-200 bg-white px-4 py-2.5 text-sm text-gray-900 shadow-sm outline-none transition-colors focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20"
           disabled={sending}
         />
         <button
           onClick={send}
           disabled={sending || !input.trim()}
-          className="rounded px-4 py-2.5 text-sm font-medium text-white transition-colors disabled:opacity-50"
-          style={{ background: "var(--accent)" }}
+          className="rounded-xl bg-blue-600 px-5 py-2.5 text-sm font-medium text-white shadow-sm transition-colors hover:bg-blue-700 disabled:opacity-50"
         >
           Send
         </button>

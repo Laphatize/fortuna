@@ -231,7 +231,7 @@ export default function ReconciliationPage() {
 
       {/* Run History */}
       <div className="rounded border" style={{ background: "var(--card)", borderColor: "var(--border)" }}>
-        <div className="border-b px-5 py-4" style={{ borderColor: "var(--border)" }}>
+        <div className=" px-5 py-4" style={{ borderColor: "var(--border)" }}>
           <h2 className="text-sm font-semibold" style={{ color: "var(--foreground)" }}>Run History</h2>
         </div>
         {runs.length === 0 ? (
@@ -261,7 +261,7 @@ export default function ReconciliationPage() {
 
       {/* Transaction Table */}
       <div className="rounded border" style={{ background: "var(--card)", borderColor: "var(--border)" }}>
-        <div className="flex items-center gap-1 border-b px-4 py-3" style={{ borderColor: "var(--border)" }}>
+        <div className="flex items-center gap-1  px-4 py-3" style={{ borderColor: "var(--border)" }}>
           {["all", "matched", "exception", "pending", "resolved"].map((tab) => (
             <button key={tab} onClick={() => setActiveTab(tab)}
               className="rounded-sm px-3 py-1.5 text-xs font-medium capitalize transition-colors"
@@ -277,7 +277,7 @@ export default function ReconciliationPage() {
         ) : (
           <table className="w-full">
             <thead>
-              <tr className="border-b" style={{ borderColor: "var(--border)" }}>
+              <tr className="" style={{ borderColor: "var(--border)" }}>
                 {["ID", "Source", "Counterparty", "Amount", "Date", "Status", ""].map((h) => (
                   <th key={h} className="px-5 py-3 text-left text-[11px] font-semibold uppercase tracking-wider" style={{ color: "var(--muted)" }}>{h}</th>
                 ))}
@@ -318,7 +318,7 @@ export default function ReconciliationPage() {
       {selectedTxn && (
         <div className="fixed inset-0 z-50 flex" style={{ background: "var(--background)" }}>
           {/* Top bar */}
-          <div className="absolute top-0 left-0 right-0 flex items-center justify-between border-b px-6 py-4 z-10"
+          <div className="absolute top-0 left-0 right-0 flex items-center justify-between  px-6 py-4 z-10"
             style={{ background: "var(--card)", borderColor: "var(--border)" }}>
             <div className="flex items-center gap-4">
               <button onClick={() => setSelectedTxn(null)}
@@ -358,7 +358,7 @@ export default function ReconciliationPage() {
               <div className="grid grid-cols-2 gap-6">
                 {/* Source Transaction */}
                 <div className="rounded border" style={{ background: "var(--card)", borderColor: "var(--border)" }}>
-                  <div className="border-b px-5 py-3.5" style={{ borderColor: "var(--border)" }}>
+                  <div className=" px-5 py-3.5" style={{ borderColor: "var(--border)" }}>
                     <p className="text-[11px] font-semibold uppercase tracking-wider" style={{ color: "var(--accent)" }}>Source Record</p>
                   </div>
                   <div className="p-5 space-y-4">
@@ -368,7 +368,7 @@ export default function ReconciliationPage() {
 
                 {/* Matched / Counterparty Transaction */}
                 <div className="rounded border" style={{ background: "var(--card)", borderColor: matchedTxn ? "var(--border)" : "var(--border)" }}>
-                  <div className="border-b px-5 py-3.5" style={{ borderColor: "var(--border)" }}>
+                  <div className=" px-5 py-3.5" style={{ borderColor: "var(--border)" }}>
                     <p className="text-[11px] font-semibold uppercase tracking-wider" style={{ color: matchedTxn ? "#16a34a" : "var(--muted)" }}>
                       {matchedTxn ? "Matched Record" : "No Matched Record"}
                     </p>
@@ -516,7 +516,7 @@ export default function ReconciliationPage() {
 
               {/* All transaction fields (raw data) */}
               <div className="rounded border" style={{ background: "var(--card)", borderColor: "var(--border)" }}>
-                <div className="border-b px-5 py-3.5" style={{ borderColor: "var(--border)" }}>
+                <div className=" px-5 py-3.5" style={{ borderColor: "var(--border)" }}>
                   <p className="text-[11px] font-semibold uppercase tracking-wider" style={{ color: "var(--muted)" }}>Raw Transaction Data</p>
                 </div>
                 <div className="p-5">

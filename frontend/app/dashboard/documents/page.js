@@ -149,72 +149,70 @@ export default function DocumentsPage() {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-xl font-semibold" style={{ color: "var(--foreground)" }}>Documents</h1>
-        <p className="mt-1 text-sm" style={{ color: "var(--muted)" }}>
+        <h1 className="text-xl font-semibold text-gray-900">Documents</h1>
+        <p className="mt-1 text-sm text-gray-500">
           AI document processing — extract, validate, and classify financial documents
         </p>
       </div>
 
       <div
-        className="flex flex-col items-center justify-center rounded border-2 border-dashed p-10 transition-colors cursor-pointer"
-        style={{ borderColor: dragOver ? "var(--accent)" : "var(--border)", background: dragOver ? "var(--card)" : "transparent" }}
+        className={`flex flex-col items-center justify-center rounded-xl border-2 border-dashed p-10 transition-colors cursor-pointer ${dragOver ? "border-blue-500 bg-blue-50" : "border-gray-300 bg-transparent"}`}
         onDragOver={(e) => { e.preventDefault(); setDragOver(true); }}
         onDragLeave={() => setDragOver(false)}
         onDrop={handleDrop}
         onClick={() => fileRef.current?.click()}
       >
         <input ref={fileRef} type="file" className="hidden" onChange={handleFileSelect} accept=".pdf,.csv,.xlsx,.txt,.json,.xml" />
-        <svg className="h-8 w-8 mb-3" fill="none" viewBox="0 0 24 24" strokeWidth={1} stroke="var(--muted)">
+        <svg className="h-8 w-8 mb-3 text-gray-500" fill="none" viewBox="0 0 24 24" strokeWidth={1} stroke="currentColor">
           <path strokeLinecap="round" strokeLinejoin="round" d="M3 16.5v2.25A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75V16.5m-13.5-9L12 3m0 0 4.5 4.5M12 3v13.5" />
         </svg>
-        <p className="text-sm font-medium" style={{ color: "var(--foreground)" }}>
+        <p className="text-sm font-medium text-gray-900">
           {processing ? "Processing..." : "Drop documents here or click to upload"}
         </p>
-        <p className="mt-1 text-xs" style={{ color: "var(--muted)" }}>Supports PDF, XLSX, CSV, TXT, JSON, XML</p>
+        <p className="mt-1 text-xs text-gray-500">Supports PDF, XLSX, CSV, TXT, JSON, XML</p>
       </div>
 
-      {error && <p className="text-xs" style={{ color: "#b54a4a" }}>{error}</p>}
+      {error && <p className="text-xs text-red-600">{error}</p>}
 
       <div className="grid grid-cols-3 gap-4">
-        <div className="rounded border p-5" style={{ background: "var(--card)", borderColor: "var(--border)" }}>
-          <p className="text-[11px] font-semibold uppercase tracking-wider" style={{ color: "var(--muted)" }}>Processed</p>
-          <p className="mt-2 text-2xl font-semibold" style={{ color: "var(--foreground)" }}>{processedCount}</p>
+        <div className="rounded-xl border border-gray-200 bg-white p-5 shadow-sm">
+          <p className="text-[11px] font-semibold uppercase tracking-wider text-gray-500">Processed</p>
+          <p className="mt-2 text-2xl font-semibold text-gray-900">{processedCount}</p>
         </div>
-        <div className="rounded border p-5" style={{ background: "var(--card)", borderColor: "var(--border)" }}>
-          <p className="text-[11px] font-semibold uppercase tracking-wider" style={{ color: "var(--muted)" }}>Fields Extracted</p>
-          <p className="mt-2 text-2xl font-semibold" style={{ color: "var(--foreground)" }}>{totalFields}</p>
+        <div className="rounded-xl border border-gray-200 bg-white p-5 shadow-sm">
+          <p className="text-[11px] font-semibold uppercase tracking-wider text-gray-500">Fields Extracted</p>
+          <p className="mt-2 text-2xl font-semibold text-gray-900">{totalFields}</p>
         </div>
-        <div className="rounded border p-5" style={{ background: "var(--card)", borderColor: "var(--border)" }}>
-          <p className="text-[11px] font-semibold uppercase tracking-wider" style={{ color: "var(--muted)" }}>Avg. Confidence</p>
-          <p className="mt-2 text-2xl font-semibold" style={{ color: "#3d8c5c" }}>{avgConfidence}{avgConfidence !== "—" && "%"}</p>
+        <div className="rounded-xl border border-gray-200 bg-white p-5 shadow-sm">
+          <p className="text-[11px] font-semibold uppercase tracking-wider text-gray-500">Avg. Confidence</p>
+          <p className="mt-2 text-2xl font-semibold text-emerald-600">{avgConfidence}{avgConfidence !== "—" && "%"}</p>
         </div>
       </div>
 
       <div className="grid grid-cols-3 gap-6">
-        <div className="rounded border" style={{ background: "var(--card)", borderColor: "var(--border)" }}>
-          <div className="border-b px-5 py-4" style={{ borderColor: "var(--border)" }}>
-            <h2 className="text-sm font-semibold" style={{ color: "var(--foreground)" }}>Documents</h2>
+        <div className="rounded-xl border border-gray-200 bg-white shadow-sm">
+          <div className="border-b border-gray-100 px-5 py-4">
+            <h2 className="text-sm font-semibold text-gray-900">Documents</h2>
           </div>
           {documents.length === 0 ? (
             <div className="px-5 py-8 text-center">
-              <p className="text-sm" style={{ color: "var(--muted)" }}>No documents uploaded.</p>
+              <p className="text-sm text-gray-500">No documents uploaded.</p>
             </div>
           ) : (
-            <div className="divide-y" style={{ borderColor: "var(--border)" }}>
+            <div className="divide-y divide-gray-100">
               {documents.map((doc) => (
                 <button
                   key={doc._id}
-                  className="w-full text-left px-5 py-3 transition-colors"
-                  style={{ background: selectedId === doc._id ? "var(--background)" : "transparent" }}
+                  className={`w-full text-left px-5 py-3 transition-colors hover:bg-slate-50 ${selectedId === doc._id ? "bg-blue-50" : ""}`}
                   onClick={() => setSelectedId(doc._id)}
                 >
                   <div className="flex items-center justify-between">
                     <div>
-                      <p className="text-[13px] font-medium" style={{ color: "var(--foreground)" }}>{doc.originalName}</p>
-                      <p className="text-[11px]" style={{ color: "var(--muted)" }}>{new Date(doc.createdAt).toLocaleString()}</p>
+                      <p className="text-[13px] font-medium text-gray-900">{doc.originalName}</p>
+                      <p className="text-[11px] text-gray-500">{new Date(doc.createdAt).toLocaleString()}</p>
                     </div>
-                    <span className="rounded-sm px-2 py-0.5 text-[11px] font-medium"
-                      style={{ background: statusStyles[doc.status]?.bg || "var(--background)", color: statusStyles[doc.status]?.color || "var(--muted)" }}>
+                    <span className="rounded-md px-2 py-0.5 text-[11px] font-medium"
+                      style={{ background: statusStyles[doc.status]?.bg || "#f1f5f9", color: statusStyles[doc.status]?.color || "#64748b" }}>
                       {statusStyles[doc.status]?.label || doc.status}
                     </span>
                   </div>
@@ -225,34 +223,34 @@ export default function DocumentsPage() {
         </div>
 
         <div className="col-span-2 space-y-4">
-          <div className="rounded border" style={{ background: "var(--card)", borderColor: "var(--border)" }}>
-            <div className="border-b px-5 py-4" style={{ borderColor: "var(--border)" }}>
-              <h2 className="text-sm font-semibold" style={{ color: "var(--foreground)" }}>Preview</h2>
+          <div className="rounded-xl border border-gray-200 bg-white shadow-sm">
+            <div className="border-b border-gray-100 px-5 py-4">
+              <h2 className="text-sm font-semibold text-gray-900">Preview</h2>
             </div>
             {!selectedDoc ? (
               <div className="px-5 py-8 text-center">
-                <p className="text-sm" style={{ color: "var(--muted)" }}>Select a document to preview.</p>
+                <p className="text-sm text-gray-500">Select a document to preview.</p>
               </div>
             ) : (
               <div className="px-5 py-4 space-y-4">
                 <div>
-                  <p className="text-[11px] font-semibold uppercase tracking-wider" style={{ color: "var(--muted)" }}>Summary</p>
-                  <p className="text-sm" style={{ color: "var(--foreground)" }}>{selectedDoc.aiResult?.summary || "No AI summary yet."}</p>
+                  <p className="text-[11px] font-semibold uppercase tracking-wider text-gray-500">Summary</p>
+                  <p className="text-sm text-gray-900">{selectedDoc.aiResult?.summary || "No AI summary yet."}</p>
                 </div>
                 {selectedDoc.aiResult?.fields?.length > 0 && (
                   <table className="w-full">
                     <thead>
-                      <tr className="border-b" style={{ borderColor: "var(--border)" }}>
-                        <th className="pb-2 text-left text-[11px] font-semibold uppercase tracking-wider" style={{ color: "var(--muted)" }}>Field</th>
-                        <th className="pb-2 text-left text-[11px] font-semibold uppercase tracking-wider" style={{ color: "var(--muted)" }}>Value</th>
-                        <th className="pb-2 text-right text-[11px] font-semibold uppercase tracking-wider" style={{ color: "var(--muted)" }}>Confidence</th>
+                      <tr>
+                        <th className="pb-2 text-left text-[11px] font-semibold uppercase tracking-wider text-gray-500">Field</th>
+                        <th className="pb-2 text-left text-[11px] font-semibold uppercase tracking-wider text-gray-500">Value</th>
+                        <th className="pb-2 text-right text-[11px] font-semibold uppercase tracking-wider text-gray-500">Confidence</th>
                       </tr>
                     </thead>
-                    <tbody className="divide-y" style={{ borderColor: "var(--border)" }}>
+                    <tbody className="divide-y divide-gray-100">
                       {selectedDoc.aiResult.fields.map((f, i) => (
                         <tr key={i}>
-                          <td className="py-2 text-[13px]" style={{ color: "var(--muted)" }}>{f.field_name}</td>
-                          <td className="py-2 text-[13px] font-medium" style={{ color: "var(--foreground)" }}>{formatValue(f.value)}</td>
+                          <td className="py-2 text-[13px] text-gray-500">{f.field_name}</td>
+                          <td className="py-2 text-[13px] font-medium text-gray-900">{formatValue(f.value)}</td>
                           <td className="py-2 text-right text-[13px] tabular-nums" style={{ color: f.confidence >= 90 ? "#16a34a" : "#2563eb" }}>{f.confidence}%</td>
                         </tr>
                       ))}
@@ -260,29 +258,29 @@ export default function DocumentsPage() {
                   </table>
                 )}
                 <div>
-                  <p className="text-[11px] font-semibold uppercase tracking-wider" style={{ color: "var(--muted)" }}>Content Preview</p>
-                  <pre className="mt-2 max-h-48 overflow-auto rounded border p-3 text-xs" style={{ background: "var(--background)", borderColor: "var(--border)", color: "var(--foreground)" }}>
+                  <p className="text-[11px] font-semibold uppercase tracking-wider text-gray-500">Content Preview</p>
+                  <pre className="mt-2 max-h-48 overflow-auto rounded-lg border border-gray-200 bg-slate-50 p-3 text-xs text-gray-900">
                     {selectedDoc.extractedText ? selectedDoc.extractedText.substring(0, 2000) : "No text extracted from this file."}
                   </pre>
                 </div>
                 <div>
-                  <p className="text-[11px] font-semibold uppercase tracking-wider" style={{ color: "var(--muted)" }}>Processing History</p>
+                  <p className="text-[11px] font-semibold uppercase tracking-wider text-gray-500">Processing History</p>
                   {docRuns.length === 0 ? (
-                    <p className="text-sm" style={{ color: "var(--muted)" }}>No runs yet.</p>
+                    <p className="text-sm text-gray-500">No runs yet.</p>
                   ) : (
-                    <div className="mt-2 divide-y" style={{ borderColor: "var(--border)" }}>
+                    <div className="mt-2 divide-y divide-gray-100">
                       {docRuns.slice(0, 5).map((run) => (
                         <div key={run._id} className="flex items-center justify-between py-2">
                           <div>
-                            <p className="text-[12px] font-medium" style={{ color: "var(--foreground)" }}>
+                            <p className="text-[12px] font-medium text-gray-900">
                               {run.status === "success" ? "Success" : "Error"}
                             </p>
-                            <p className="text-[11px]" style={{ color: "var(--muted)" }}>
+                            <p className="text-[11px] text-gray-500">
                               {new Date(run.createdAt).toLocaleString()}
                             </p>
                           </div>
                           {run.error && (
-                            <p className="text-[11px]" style={{ color: "#b54a4a" }}>{run.error}</p>
+                            <p className="text-[11px] text-red-600">{run.error}</p>
                           )}
                         </div>
                       ))}
@@ -293,24 +291,24 @@ export default function DocumentsPage() {
             )}
           </div>
 
-          <div className="rounded border" style={{ background: "var(--card)", borderColor: "var(--border)" }}>
-            <div className="border-b px-5 py-4" style={{ borderColor: "var(--border)" }}>
-              <h2 className="text-sm font-semibold" style={{ color: "var(--foreground)" }}>Document Review Chat</h2>
+          <div className="rounded-xl border border-gray-200 bg-white shadow-sm">
+            <div className="border-b border-gray-100 px-5 py-4">
+              <h2 className="text-sm font-semibold text-gray-900">Document Review Chat</h2>
             </div>
             {!selectedDoc ? (
               <div className="px-5 py-8 text-center">
-                <p className="text-sm" style={{ color: "var(--muted)" }}>Select a document to start reviewing.</p>
+                <p className="text-sm text-gray-500">Select a document to start reviewing.</p>
               </div>
             ) : (
               <div className="px-5 py-4 space-y-3">
                 <div className="space-y-2 max-h-56 overflow-auto">
                   {chatMessages.length === 0 ? (
-                    <p className="text-sm" style={{ color: "var(--muted)" }}>Ask a question about this document.</p>
+                    <p className="text-sm text-gray-500">Ask a question about this document.</p>
                   ) : (
                     chatMessages.map((m, i) => (
                       <div key={i} className="text-sm">
-                        <p className="text-[11px] font-semibold uppercase tracking-wider" style={{ color: "var(--muted)" }}>{m.role}</p>
-                        <p style={{ color: "var(--foreground)" }}>{m.content}</p>
+                        <p className="text-[11px] font-semibold uppercase tracking-wider text-gray-400">{m.role}</p>
+                        <p className="text-gray-900">{m.content}</p>
                       </div>
                     ))
                   )}
@@ -319,14 +317,12 @@ export default function DocumentsPage() {
                   <input
                     value={chatInput}
                     onChange={(e) => setChatInput(e.target.value)}
-                    className="flex-1 rounded border px-3 py-2 text-sm"
-                    style={{ background: "var(--background)", borderColor: "var(--border)", color: "var(--foreground)" }}
+                    className="flex-1 rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20"
                     placeholder="Ask what's incorrect or needs review..."
                   />
                   <button
                     onClick={sendChat}
-                    className="rounded-sm px-3 py-2 text-xs font-medium"
-                    style={{ background: "var(--accent)", color: "white" }}
+                    className="rounded-lg bg-blue-600 hover:bg-blue-700 px-3 py-2 text-xs font-medium text-white shadow-sm"
                   >
                     Send
                   </button>

@@ -15,19 +15,12 @@ export default function RiskPage() {
   const [recommendations, setRecommendations] = useState([]);
   const [portfolio, setPortfolio] = useState([]);
   const [scenarios, setScenarios] = useState([]);
-  // JSON inputs hidden; data is sourced from documents/datasets
   const [runs, setRuns] = useState([]);
-  const [dirty] = useState(false);
+  const [selectedRunId, setSelectedRunId] = useState(null);
 
   useEffect(() => {
     reloadDataset();
-    reloadRuns();
-    const interval = setInterval(() => {
-      if (!dirty) {
-        reloadDataset();
-      }
-    }, 8000);
-    return () => clearInterval(interval);
+    reloadRuns(true);
   }, []);
 
   async function runAnalysis() {
@@ -43,11 +36,9 @@ export default function RiskPage() {
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error);
-      setMetrics(data.metrics || null);
-      setExposures(data.exposures || []);
-      setStressTests(data.stress_tests || []);
-      setRecommendations(data.recommendations || []);
-      reloadRuns();
+      loadRunResults(data);
+      setSelectedRunId(data.runId || null);
+      reloadRuns(false);
     } catch (err) {
       console.error("Risk analysis failed:", err);
     } finally {
@@ -55,8 +46,12 @@ export default function RiskPage() {
     }
   }
 
-  function loadInputs() {}
-  async function saveDataset() {}
+  function loadRunResults(data) {
+    setMetrics(data.metrics || null);
+    setExposures(data.exposures || []);
+    setStressTests(data.stress_tests || data.stressTests || []);
+    setRecommendations(data.recommendations || []);
+  }
 
   async function reloadDataset() {
     try {
@@ -65,17 +60,32 @@ export default function RiskPage() {
       if (!res.ok) throw new Error(data.error);
       setPortfolio(data.portfolio || []);
       setScenarios(data.scenarios || []);
-    } catch (err) {}
+    } catch {}
   }
 
-  async function reloadRuns() {
+  async function reloadRuns(loadLatest) {
     try {
       const res = await fetch(`${API}/api/risk/runs`);
       const data = await res.json();
-      if (res.ok) setRuns(data);
-    } catch {
-      // ignore
-    }
+      if (res.ok) {
+        setRuns(data);
+        // On initial load, restore the latest successful run
+        if (loadLatest && data.length > 0) {
+          const latest = data.find((r) => r.status === "success");
+          if (latest) {
+            selectRun(latest);
+          }
+        }
+      }
+    } catch {}
+  }
+
+  function selectRun(run) {
+    setSelectedRunId(run._id);
+    setMetrics(run.metrics || null);
+    setExposures(run.exposures || []);
+    setStressTests(run.stressTests || run.stress_tests || []);
+    setRecommendations(run.recommendations || []);
   }
 
   const displayMetrics = metrics
@@ -134,7 +144,7 @@ export default function RiskPage() {
       )}
 
       <div className="rounded border" style={{ background: "var(--card)", borderColor: "var(--border)" }}>
-        <div className="border-b px-5 py-4" style={{ borderColor: "var(--border)" }}>
+        <div className=" px-5 py-4" style={{ borderColor: "var(--border)" }}>
           <h2 className="text-sm font-semibold" style={{ color: "var(--foreground)" }}>Run History</h2>
         </div>
         {runs.length === 0 ? (
@@ -143,11 +153,20 @@ export default function RiskPage() {
           </div>
         ) : (
           <div className="divide-y" style={{ borderColor: "var(--border)" }}>
-            {runs.slice(0, 5).map((run) => (
-              <div key={run._id} className="flex items-center justify-between px-5 py-3">
+            {runs.slice(0, 10).map((run) => (
+              <div
+                key={run._id}
+                onClick={() => run.status === "success" && selectRun(run)}
+                className="flex items-center justify-between px-5 py-3 transition-colors"
+                style={{
+                  cursor: run.status === "success" ? "pointer" : "default",
+                  background: selectedRunId === run._id ? "#f0f5ff" : "transparent",
+                }}
+              >
                 <div>
                   <p className="text-[13px] font-medium" style={{ color: "var(--foreground)" }}>
                     {run.status === "success" ? "Success" : "Error"}
+                    {selectedRunId === run._id && <span className="ml-2 text-[10px] font-semibold" style={{ color: "var(--accent)" }}>VIEWING</span>}
                   </p>
                   <p className="text-xs" style={{ color: "var(--muted)" }}>
                     {new Date(run.createdAt).toLocaleString()}
@@ -176,7 +195,7 @@ export default function RiskPage() {
 
       <div className="grid grid-cols-2 gap-6">
         <div className="rounded border" style={{ background: "var(--card)", borderColor: "var(--border)" }}>
-          <div className="border-b px-5 py-4" style={{ borderColor: "var(--border)" }}>
+          <div className=" px-5 py-4" style={{ borderColor: "var(--border)" }}>
             <h2 className="text-sm font-semibold" style={{ color: "var(--foreground)" }}>Exposure Breakdown</h2>
           </div>
           {displayExposures.length === 0 ? (
@@ -206,7 +225,7 @@ export default function RiskPage() {
         </div>
 
         <div className="rounded border" style={{ background: "var(--card)", borderColor: "var(--border)" }}>
-          <div className="border-b px-5 py-4" style={{ borderColor: "var(--border)" }}>
+          <div className=" px-5 py-4" style={{ borderColor: "var(--border)" }}>
             <h2 className="text-sm font-semibold" style={{ color: "var(--foreground)" }}>Stress Test Results</h2>
           </div>
           {stressTests.length === 0 ? (

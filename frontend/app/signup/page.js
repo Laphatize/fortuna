@@ -48,30 +48,30 @@ export default function SignupPage() {
   }
 
   return (
-    <div className="flex min-h-screen items-center justify-center px-4" style={{ background: "var(--background)" }}>
+    <div className="flex min-h-screen items-center justify-center px-4 bg-slate-50">
       <div className="w-full max-w-sm space-y-6">
         <div className="space-y-1 text-center">
-          <Link href="/" className="mx-auto mb-4 flex h-10 w-10 items-center justify-center rounded-sm" style={{ background: "var(--accent)" }}>
-            <span className="text-lg font-bold text-white">T</span>
+          <Link href="/" className="mx-auto mb-4 flex h-10 w-10 items-center justify-center rounded-xl bg-blue-600 shadow-lg shadow-blue-600/20">
+            <span className="text-lg font-bold text-white">A</span>
           </Link>
-          <h2 className="text-xl font-semibold" style={{ color: "var(--foreground)" }}>
+          <h2 className="text-xl font-semibold text-gray-900">
             Create an account
           </h2>
-          <p className="text-sm" style={{ color: "var(--muted)" }}>
-            Get started with Tartan
+          <p className="text-sm text-gray-500">
+            Get started with Assisto
           </p>
         </div>
 
-        <div className="rounded border p-6 space-y-5" style={{ background: "var(--card)", borderColor: "var(--border)" }}>
+        <div className="rounded-xl border border-gray-200 bg-white p-6 shadow-sm space-y-5">
           {error && (
-            <div className="rounded-sm p-3 text-sm" style={{ background: "var(--error-bg)", color: "var(--error-text)" }}>
+            <div className="rounded-lg bg-red-50 p-3 text-sm text-red-700">
               {error}
             </div>
           )}
 
           <form onSubmit={handleSignup} className="space-y-4">
             <div>
-              <label htmlFor="name" className="block text-sm font-medium mb-1.5" style={{ color: "var(--foreground)" }}>
+              <label htmlFor="name" className="block text-sm font-medium mb-1.5 text-gray-700">
                 Name
               </label>
               <input
@@ -79,20 +79,13 @@ export default function SignupPage() {
                 type="text"
                 value={name}
                 onChange={(e) => setName(e.target.value)}
-                className="block w-full rounded-sm border px-3 py-2 text-sm outline-none transition-colors"
-                style={{
-                  background: "var(--input-bg)",
-                  borderColor: "var(--input-border)",
-                  color: "var(--foreground)",
-                }}
-                onFocus={(e) => e.target.style.borderColor = "var(--input-focus)"}
-                onBlur={(e) => e.target.style.borderColor = "var(--input-border)"}
+                className="block w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 outline-none transition-colors focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20"
                 placeholder="Your name"
               />
             </div>
 
             <div>
-              <label htmlFor="email" className="block text-sm font-medium mb-1.5" style={{ color: "var(--foreground)" }}>
+              <label htmlFor="email" className="block text-sm font-medium mb-1.5 text-gray-700">
                 Email
               </label>
               <input
@@ -101,20 +94,13 @@ export default function SignupPage() {
                 required
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                className="block w-full rounded-sm border px-3 py-2 text-sm outline-none transition-colors"
-                style={{
-                  background: "var(--input-bg)",
-                  borderColor: "var(--input-border)",
-                  color: "var(--foreground)",
-                }}
-                onFocus={(e) => e.target.style.borderColor = "var(--input-focus)"}
-                onBlur={(e) => e.target.style.borderColor = "var(--input-border)"}
+                className="block w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 outline-none transition-colors focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20"
                 placeholder="you@example.com"
               />
             </div>
 
             <div>
-              <label htmlFor="password" className="block text-sm font-medium mb-1.5" style={{ color: "var(--foreground)" }}>
+              <label htmlFor="password" className="block text-sm font-medium mb-1.5 text-gray-700">
                 Password
               </label>
               <input
@@ -123,24 +109,14 @@ export default function SignupPage() {
                 required
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                className="block w-full rounded-sm border px-3 py-2 text-sm outline-none transition-colors"
-                style={{
-                  background: "var(--input-bg)",
-                  borderColor: "var(--input-border)",
-                  color: "var(--foreground)",
-                }}
-                onFocus={(e) => e.target.style.borderColor = "var(--input-focus)"}
-                onBlur={(e) => e.target.style.borderColor = "var(--input-border)"}
+                className="block w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 outline-none transition-colors focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20"
                 placeholder="••••••••"
               />
             </div>
 
             <button
               type="submit"
-              className="w-full rounded-sm px-4 py-2.5 text-sm font-medium text-white transition-colors"
-              style={{ background: "var(--accent)" }}
-              onMouseEnter={(e) => e.target.style.background = "var(--accent-hover)"}
-              onMouseLeave={(e) => e.target.style.background = "var(--accent)"}
+              className="w-full rounded-lg bg-blue-600 px-4 py-2.5 text-sm font-medium text-white shadow-sm transition-colors hover:bg-blue-700"
             >
               Create account
             </button>
@@ -148,17 +124,16 @@ export default function SignupPage() {
 
           <div className="relative">
             <div className="absolute inset-0 flex items-center">
-              <div className="w-full border-t" style={{ borderColor: "var(--border)" }} />
+              <div className="w-full border-t border-gray-200" />
             </div>
             <div className="relative flex justify-center text-xs">
-              <span className="px-2" style={{ background: "var(--card)", color: "var(--muted)" }}>or</span>
+              <span className="bg-white px-2 text-gray-400">or</span>
             </div>
           </div>
 
           <button
             onClick={handleGoogleSignup}
-            className="flex w-full items-center justify-center gap-3 rounded-sm border px-4 py-2.5 text-sm font-medium transition-colors hover:opacity-80"
-            style={{ borderColor: "var(--border)", color: "var(--foreground)" }}
+            className="flex w-full items-center justify-center gap-3 rounded-lg border border-gray-200 bg-white px-4 py-2.5 text-sm font-medium text-gray-700 shadow-sm transition-colors hover:bg-gray-50"
           >
             <svg className="h-4 w-4" viewBox="0 0 24 24">
               <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92a5.06 5.06 0 0 1-2.2 3.32v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.1z" fill="#4285F4" />
@@ -170,9 +145,9 @@ export default function SignupPage() {
           </button>
         </div>
 
-        <p className="text-center text-sm" style={{ color: "var(--muted)" }}>
+        <p className="text-center text-sm text-gray-500">
           Already have an account?{" "}
-          <Link href="/login" className="font-medium hover:underline" style={{ color: "var(--accent)" }}>
+          <Link href="/login" className="font-medium text-blue-600 hover:underline">
             Sign in
           </Link>
         </p>

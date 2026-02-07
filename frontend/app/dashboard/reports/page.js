@@ -52,7 +52,7 @@ export default function ReportsPage() {
       {error && <p className="text-xs" style={{ color: "#b54a4a" }}>{error}</p>}
 
       <div className="rounded border" style={{ background: "var(--card)", borderColor: "var(--border)" }}>
-        <div className="border-b px-5 py-4" style={{ borderColor: "var(--border)" }}>
+        <div className=" px-5 py-4" style={{ borderColor: "var(--border)" }}>
           <h2 className="text-sm font-semibold" style={{ color: "var(--foreground)" }}>Report History</h2>
         </div>
         {reports.length === 0 ? (

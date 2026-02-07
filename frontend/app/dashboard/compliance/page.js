@@ -83,26 +83,24 @@ export default function CompliancePage() {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-xl font-semibold" style={{ color: "var(--foreground)" }}>Compliance</h1>
-          <p className="mt-1 text-sm" style={{ color: "var(--muted)" }}>Regulatory monitoring, AI-driven alerts, and audit readiness</p>
+          <h1 className="text-xl font-semibold text-gray-900">Compliance</h1>
+          <p className="mt-1 text-sm text-gray-500">Regulatory monitoring, AI-driven alerts, and audit readiness</p>
         </div>
         <button onClick={runScan} disabled={scanning || (entities.length === 0 && transactions.length === 0)}
-          className="flex items-center gap-2 rounded-sm px-4 py-2 text-sm font-medium text-white transition-colors disabled:opacity-50"
-          style={{ background: "var(--accent)" }}>
+          className="flex items-center gap-2 rounded-lg bg-blue-600 hover:bg-blue-700 px-4 py-2 text-sm font-medium text-white shadow-sm transition-colors disabled:opacity-50">
           {scanning && <div className="h-3 w-3 animate-spin rounded-full border border-white/30 border-t-white" />}
           {scanning ? "Scanning..." : "Run Compliance Scan"}
         </button>
       </div>
 
-      <div className="rounded border p-4" style={{ background: "var(--card)", borderColor: "var(--border)" }}>
+      <div className="rounded-xl border border-gray-200 bg-white shadow-sm p-4">
         <div className="flex items-center justify-between">
           <div>
-            <p className="text-xs" style={{ color: "var(--muted)" }}>Entities and transactions loaded from documents or saved datasets.</p>
+            <p className="text-xs text-gray-500">Entities and transactions loaded from documents or saved datasets.</p>
           </div>
           <button
             onClick={reloadDataset}
-            className="rounded-sm px-3 py-1.5 text-xs font-medium"
-            style={{ background: "var(--background)", color: "var(--accent)", border: "1px solid var(--border)" }}
+            className="rounded-lg border border-gray-200 bg-white hover:bg-gray-50 px-3 py-1.5 text-xs font-medium text-blue-600 shadow-sm"
           >
             Refresh
           </button>
@@ -110,34 +108,34 @@ export default function CompliancePage() {
       </div>
 
       {summary && (
-        <div className="rounded border p-5" style={{ background: "var(--card)", borderColor: "var(--border)" }}>
-          <p className="text-[11px] font-semibold uppercase tracking-wider mb-2" style={{ color: "var(--accent)" }}>AI Assessment</p>
-          <p className="text-[13px]" style={{ color: "var(--foreground)" }}>{summary}</p>
+        <div className="rounded-xl border border-gray-200 bg-white shadow-sm p-5">
+          <p className="text-[11px] font-semibold uppercase tracking-wider mb-2 text-blue-600">AI Assessment</p>
+          <p className="text-[13px] text-gray-900">{summary}</p>
         </div>
       )}
 
-      <div className="rounded border" style={{ background: "var(--card)", borderColor: "var(--border)" }}>
-        <div className="border-b px-5 py-4" style={{ borderColor: "var(--border)" }}>
-          <h2 className="text-sm font-semibold" style={{ color: "var(--foreground)" }}>Run History</h2>
+      <div className="rounded-xl border border-gray-200 bg-white shadow-sm">
+        <div className="border-b border-gray-100 px-5 py-4">
+          <h2 className="text-sm font-semibold text-gray-900">Run History</h2>
         </div>
         {runs.length === 0 ? (
           <div className="px-5 py-6 text-center">
-            <p className="text-sm" style={{ color: "var(--muted)" }}>No runs yet.</p>
+            <p className="text-sm text-gray-500">No runs yet.</p>
           </div>
         ) : (
-          <div className="divide-y" style={{ borderColor: "var(--border)" }}>
+          <div className="divide-y divide-gray-100">
             {runs.slice(0, 5).map((run) => (
               <div key={run._id} className="flex items-center justify-between px-5 py-3">
                 <div>
-                  <p className="text-[13px] font-medium" style={{ color: "var(--foreground)" }}>
+                  <p className="text-[13px] font-medium text-gray-900">
                     {run.status === "success" ? "Success" : "Error"}
                   </p>
-                  <p className="text-xs" style={{ color: "var(--muted)" }}>
+                  <p className="text-xs text-gray-500">
                     {new Date(run.createdAt).toLocaleString()}
                   </p>
                 </div>
                 {run.alerts && (
-                  <div className="text-xs" style={{ color: "var(--muted)" }}>
+                  <div className="text-xs text-gray-500">
                     {run.alerts.length} alerts
                   </div>
                 )}
@@ -149,38 +147,38 @@ export default function CompliancePage() {
 
       <div className="grid grid-cols-3 gap-6">
         <div className="col-span-2">
-          <div className="rounded border" style={{ background: "var(--card)", borderColor: "var(--border)" }}>
-            <div className="border-b px-5 py-4" style={{ borderColor: "var(--border)" }}>
-              <h2 className="text-sm font-semibold" style={{ color: "var(--foreground)" }}>
+          <div className="rounded-xl border border-gray-200 bg-white shadow-sm">
+            <div className="border-b border-gray-100 px-5 py-4">
+              <h2 className="text-sm font-semibold text-gray-900">
                 {alerts.length > 0 ? `Active Alerts (${alerts.length})` : "Active Alerts"}
               </h2>
             </div>
             {alerts.length === 0 ? (
               <div className="px-5 py-8 text-center">
-                <p className="text-sm" style={{ color: "var(--muted)" }}>{scanning ? "Scanning..." : "Run a compliance scan to detect issues."}</p>
+                <p className="text-sm text-gray-500">{scanning ? "Scanning..." : "Run a compliance scan to detect issues."}</p>
               </div>
             ) : (
-              <div className="divide-y" style={{ borderColor: "var(--border)" }}>
+              <div className="divide-y divide-gray-100">
                 {alerts.map((alert, i) => (
                   <div key={alert.id || i} className="px-5 py-4">
                     <div className="flex items-start justify-between">
                       <div className="flex items-center gap-2.5">
-                        <div className="h-2 w-2 rounded-sm" style={{ background: severityStyles[alert.severity]?.color || "var(--muted)" }} />
+                        <div className="h-2 w-2 rounded-full" style={{ background: severityStyles[alert.severity]?.color || "#6b7280" }} />
                         <div>
                           <div className="flex items-center gap-2">
-                            <span className="text-[13px] font-medium" style={{ color: "var(--foreground)" }}>{alert.rule}</span>
-                            <span className="rounded-sm px-2 py-0.5 text-[10px] font-medium capitalize"
+                            <span className="text-[13px] font-medium text-gray-900">{alert.rule}</span>
+                            <span className="rounded-md px-2 py-0.5 text-[10px] font-medium capitalize"
                               style={{ background: severityStyles[alert.severity]?.bg, color: severityStyles[alert.severity]?.color }}>
                               {alert.severity}
                             </span>
                           </div>
-                          <p className="text-xs" style={{ color: "var(--muted)" }}>{alert.entity}</p>
+                          <p className="text-xs text-gray-500">{alert.entity}</p>
                         </div>
                       </div>
                     </div>
-                    <p className="mt-2 pl-[18px] text-xs leading-relaxed" style={{ color: "var(--muted)" }}>{alert.detail}</p>
+                    <p className="mt-2 pl-[18px] text-xs leading-relaxed text-gray-500">{alert.detail}</p>
                     {alert.recommended_action && (
-                      <p className="mt-1 pl-[18px] text-xs" style={{ color: "var(--accent)" }}>Action: {alert.recommended_action}</p>
+                      <p className="mt-1 pl-[18px] text-xs text-blue-600">Action: {alert.recommended_action}</p>
                     )}
                   </div>
                 ))}
@@ -189,29 +187,29 @@ export default function CompliancePage() {
           </div>
         </div>
 
-        <div className="rounded border" style={{ background: "var(--card)", borderColor: "var(--border)" }}>
-          <div className="border-b px-5 py-4" style={{ borderColor: "var(--border)" }}>
-            <h2 className="text-sm font-semibold" style={{ color: "var(--foreground)" }}>Regulatory Status</h2>
+        <div className="rounded-xl border border-gray-200 bg-white shadow-sm">
+          <div className="border-b border-gray-100 px-5 py-4">
+            <h2 className="text-sm font-semibold text-gray-900">Regulatory Status</h2>
           </div>
           {scores.length === 0 ? (
             <div className="px-5 py-8 text-center">
-              <p className="text-sm" style={{ color: "var(--muted)" }}>{scanning ? "Scoring..." : "Run scan to get scores."}</p>
+              <p className="text-sm text-gray-500">{scanning ? "Scoring..." : "Run scan to get scores."}</p>
             </div>
           ) : (
             <div className="space-y-1 p-3">
               {scores.map((reg, i) => (
                 <div key={i} className="rounded-sm px-3 py-3">
                   <div className="flex items-center justify-between">
-                    <p className="text-[13px] font-medium" style={{ color: "var(--foreground)" }}>{reg.regulation}</p>
-                    <span className="text-xs font-semibold tabular-nums" style={{ color: "var(--accent)" }}>{reg.score}%</span>
+                    <p className="text-[13px] font-medium text-gray-900">{reg.regulation}</p>
+                    <span className="text-xs font-semibold tabular-nums text-blue-600">{reg.score}%</span>
                   </div>
-                  <div className="mt-2 h-1 w-full overflow-hidden rounded-sm" style={{ background: "var(--border)" }}>
-                    <div className="h-full rounded-sm transition-all" style={{
+                  <div className="mt-2 h-1 w-full overflow-hidden rounded-full bg-gray-100">
+                    <div className="h-full rounded-full transition-all" style={{
                       width: `${reg.score}%`,
                       background: reg.score >= 95 ? "#16a34a" : reg.score >= 85 ? "#2563eb" : "#dc2626",
                     }} />
                   </div>
-                  <p className="mt-1 text-[11px]" style={{ color: "var(--muted)" }}>{reg.status}</p>
+                  <p className="mt-1 text-[11px] text-gray-500">{reg.status}</p>
                 </div>
               ))}
             </div>

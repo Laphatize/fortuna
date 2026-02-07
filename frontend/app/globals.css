@@ -1,53 +1,18 @@
 @import "tailwindcss";
 
-html {
-  color-scheme: light only;
-}
-
-:root {
-  --background: #ffffff;
-  --foreground: #111827;
-  --card: #ffffff;
-  --border: #f6f7fb;
-  --muted: #6b7280;
-  --accent: #2563eb;
-  --accent-hover: #1d4ed8;
-  --input-bg: #ffffff;
-  --input-border: #e2e8f0;
-  --input-focus: #2563eb;
-  --error-bg: #fef2f2;
-  --error-text: #b91c1c;
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #ffffff;
-    --foreground: #111827;
-  }
-}
-
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
 }
 
+html {
+  color-scheme: light only;
+}
+
 body {
-  background: var(--background) !important;
-  color: var(--foreground) !important;
-  font-family: Arial, Helvetica, sans-serif;
-}
-
-/* Force lighter borders everywhere (tables, dividers, cards) */
-.border,
-.border-t,
-.border-b,
-.border-l,
-.border-r {
-  border-color: var(--border) !important;
-}
-
-.divide-y > :not([hidden]) ~ :not([hidden]) {
-  border-color: var(--border) !important;
+  background: #f8fafc;
+  color: #111827;
+  font-family: var(--font-geist-sans), system-ui, -apple-system, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }

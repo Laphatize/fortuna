@@ -264,7 +264,7 @@ export default function PTOManagement() {
 
       {/* Requests List */}
       <div className="rounded border" style={{ background: "var(--card)", borderColor: "var(--border)" }}>
-        <div className="border-b px-5 py-4" style={{ borderColor: "var(--border)" }}>
+        <div className=" px-5 py-4" style={{ borderColor: "var(--border)" }}>
           <h2 className="text-sm font-semibold" style={{ color: "var(--foreground)" }}>PTO Requests</h2>
         </div>
         {requests.length === 0 ? (

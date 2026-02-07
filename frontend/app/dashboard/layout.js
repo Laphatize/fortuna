@@ -25,7 +25,7 @@ const navSections = [
     label: "Finance",
     items: [
       {
-        label: "Data Source",
+        label: "Data Sources",
         href: "/dashboard/data-sources",
         icon: (
           <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor">
@@ -114,74 +114,69 @@ export default function DashboardLayout({ children }) {
 
   if (loading || !user) {
     return (
-      <div className="flex min-h-screen items-center justify-center" style={{ background: "var(--background)" }}>
-        <div className="h-5 w-5 animate-spin rounded-full border-2 border-[var(--border)] border-t-[var(--accent)]" />
+      <div className="flex min-h-screen items-center justify-center bg-slate-50">
+        <div className="h-5 w-5 animate-spin rounded-full border-2 border-gray-200 border-t-blue-600" />
       </div>
     );
   }
 
   return (
-    <div className="flex min-h-screen" style={{ background: "var(--background)" }}>
+    <div className="flex min-h-screen bg-slate-50">
       {/* Side Navigation */}
-      <aside
-        className="fixed left-0 top-0 flex h-full w-56 flex-col border-r"
-        style={{ background: "var(--card)", borderColor: "var(--border)" }}
-      >
+      <aside className="fixed left-0 top-0 flex h-full w-[220px] flex-col border-r border-gray-200 bg-white">
         {/* Logo */}
-     
-     
-        <div className="bg-blue-500 flex items-center gap-2.5 px-5 py-2">
-     
-          <h1 className="px-2 text-2xl text-white mx-auto text-center" style={{ fontFamily: "var(--font-instrument-serif)", letterSpacing: "-0.01em" }}>Assisto</h1>
-      </div>
-
+        <div className="flex items-center gap-2.5 px-5 py-4 border-b border-gray-100">
+        
+          <h1 className="text-lg font-semibold tracking-tight text-gray-900" style={{ fontFamily: "var(--font-instrument-serif)" }}>Assisto</h1>
+        </div>
 
         {/* Nav Sections */}
-        <div className="px-3 mt-4 space-y-4 overflow-y-auto">
-          {navSections.map((section, si) => (
-            <div key={si}>
-              {section.label && (
-                <p className="mb-1.5 px-2.5 text-[10px] font-semibold uppercase tracking-widest" style={{ color: "var(--muted)" }}>
-                  {section.label}
-                </p>
-              )}
-              <nav className="space-y-0.5">
-                {section.items.map((item) => {
-                  const isActive = pathname === item.href;
-                  return (
-                    <Link
-                      key={item.href}
-                      href={item.href}
-                      className="flex items-center gap-2.5 px-2.5 py-2 text-[13px] font-medium transition-colors"
-                      style={{
-                        background: isActive ? "var(--background)" : "transparent",
-                        color: isActive ? "var(--accent)" : "var(--muted)",
-                      }}
-                    >
-                      {item.icon}
-                      {item.label}
-                    </Link>
-                  );
-                })}
-              </nav>
-            </div>
-          ))}
+        <div className="flex-1 overflow-y-auto px-3 pt-4 pb-2">
+          <div className="space-y-5">
+            {navSections.map((section, si) => (
+              <div key={si}>
+                {section.label && (
+                  <p className="mb-2 px-3 text-[10px] font-semibold uppercase tracking-widest text-gray-400">
+                    {section.label}
+                  </p>
+                )}
+                <nav className="space-y-0.5">
+                  {section.items.map((item) => {
+                    const isActive = pathname === item.href;
+                    return (
+                      <Link
+                        key={item.href}
+                        href={item.href}
+                        className={`flex items-center gap-2.5 rounded-lg px-3 py-2 text-[13px] font-medium transition-all ${
+                          isActive
+                            ? "bg-blue-50 text-blue-600"
+                            : "text-gray-500 hover:bg-gray-50 hover:text-gray-900"
+                        }`}
+                      >
+                        {item.icon}
+                        {item.label}
+                      </Link>
+                    );
+                  })}
+                </nav>
+              </div>
+            ))}
+          </div>
         </div>
 
         {/* Bottom Section */}
-        <div className="mt-auto border-t px-3 py-4" style={{ borderColor: "var(--border)" }}>
-          <div className="mb-3 px-2.5">
-            <p className="truncate text-[13px] font-medium" style={{ color: "var(--foreground)" }}>
+        <div className="border-t border-gray-200 px-3 py-3">
+          <div className="mb-2 px-3">
+            <p className="truncate text-[13px] font-medium text-gray-900">
               {user.displayName || "User"}
             </p>
-            <p className="truncate text-[11px]" style={{ color: "var(--muted)" }}>
+            <p className="truncate text-[11px] text-gray-400">
               {user.email}
             </p>
           </div>
           <button
             onClick={() => signOut(auth)}
-            className="flex w-full items-center gap-2 px-2.5 py-2 text-[13px] font-medium transition-colors"
-            style={{ color: "var(--muted)" }}
+            className="flex w-full items-center gap-2 rounded-lg px-3 py-2 text-[13px] font-medium text-gray-500 transition-colors hover:bg-gray-50 hover:text-gray-900"
           >
             <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 9V5.25A2.25 2.25 0 0 0 13.5 3h-6a2.25 2.25 0 0 0-2.25 2.25v13.5A2.25 2.25 0 0 0 7.5 21h6a2.25 2.25 0 0 0 2.25-2.25V15m3 0 3-3m0 0-3-3m3 3H9" />
@@ -192,7 +187,7 @@ export default function DashboardLayout({ children }) {
       </aside>
 
       {/* Main Content */}
-      <main className="ml-56 flex-1 p-8">
+      <main className="ml-[220px] flex-1 p-8">
         {children}
       </main>
     </div>
