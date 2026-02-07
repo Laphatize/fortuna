@@ -8,12 +8,12 @@ html {
   --background: #ffffff;
   --foreground: #111827;
   --card: #ffffff;
-  --border: #e5e7eb;
+  --border: #f6f7fb;
   --muted: #6b7280;
   --accent: #2563eb;
   --accent-hover: #1d4ed8;
   --input-bg: #ffffff;
-  --input-border: #d1d5db;
+  --input-border: #e2e8f0;
   --input-focus: #2563eb;
   --error-bg: #fef2f2;
   --error-text: #b91c1c;
@@ -37,4 +37,17 @@ body {
   background: var(--background) !important;
   color: var(--foreground) !important;
   font-family: Arial, Helvetica, sans-serif;
+}
+
+/* Force lighter borders everywhere (tables, dividers, cards) */
+.border,
+.border-t,
+.border-b,
+.border-l,
+.border-r {
+  border-color: var(--border) !important;
+}
+
+.divide-y > :not([hidden]) ~ :not([hidden]) {
+  border-color: var(--border) !important;
 }
