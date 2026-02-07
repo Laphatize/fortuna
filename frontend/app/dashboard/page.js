@@ -1,142 +1,176 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useAuth } from "@/lib/AuthContext";
-import { useRouter } from "next/navigation";
 
 const API = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5001";
 
 export default function DashboardOverview() {
   const { user } = useAuth();
-  const router = useRouter();
   const [stats, setStats] = useState(null);
-  const [activity, setActivity] = useState([]);
+  const [messages, setMessages] = useState([]);
+  const [input, setInput] = useState("");
+  const [sending, setSending] = useState(false);
+  const bottomRef = useRef(null);
+  const inputRef = useRef(null);
 
   useEffect(() => {
     loadOverview();
-    const interval = setInterval(loadOverview, 10000);
-    return () => clearInterval(interval);
   }, []);
+
+  useEffect(() => {
+    bottomRef.current?.scrollIntoView({ behavior: "smooth" });
+  }, [messages]);
 
   async function loadOverview() {
     try {
       const res = await fetch(`${API}/api/overview`);
       const data = await res.json();
-      if (!res.ok) throw new Error(data.error);
-      setStats(data.stats);
-      setActivity(data.activity || []);
+      if (res.ok) setStats(data.stats);
+    } catch {}
+  }
+
+  async function send() {
+    const text = input.trim();
+    if (!text || sending) return;
+    setInput("");
+    setSending(true);
+
+    const userMsg = { role: "user", content: text };
+    setMessages((prev) => [...prev, userMsg]);
+
+    try {
+      const res = await fetch(`${API}/api/overview/chat`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ message: text, history: messages }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || "Chat failed");
+      setMessages((prev) => [...prev, { role: "assistant", content: data.answer }]);
     } catch (err) {
-      console.error("Overview load failed:", err);
+      setMessages((prev) => [...prev, { role: "assistant", content: `Error: ${err.message}` }]);
+    } finally {
+      setSending(false);
+      inputRef.current?.focus();
+    }
+  }
+
+  function handleKeyDown(e) {
+    if (e.key === "Enter" && !e.shiftKey) {
+      e.preventDefault();
+      send();
     }
   }
 
   const displayStats = [
-    { label: "Transactions Processed", value: stats?.transactions_processed ?? "—", color: "var(--foreground)" },
-    { label: "Compliance Score", value: stats?.compliance_score != null ? `${stats.compliance_score}%` : "—", color: stats?.compliance_score >= 90 ? "#16a34a" : stats?.compliance_score >= 75 ? "#2563eb" : stats?.compliance_score != null ? "#dc2626" : "var(--foreground)" },
-    { label: "Open Exceptions", value: stats?.open_exceptions ?? "—", color: stats?.open_exceptions > 0 ? "#dc2626" : "var(--foreground)" },
-    { label: "Documents Processed", value: stats?.documents_processed ?? "—", color: "var(--foreground)" },
+    { label: "Transactions", value: stats?.transactions_processed ?? "—" },
+    { label: "Compliance", value: stats?.compliance_score != null ? `${stats.compliance_score}%` : "—" },
+    { label: "Exceptions", value: stats?.open_exceptions ?? "—" },
+    { label: "Documents", value: stats?.documents_processed ?? "—" },
   ];
 
-  return (
-    <div className="space-y-8">
-      <div>
-        <h1 className="text-xl font-semibold" style={{ color: "var(--foreground)" }}>
-          Good {new Date().getHours() < 12 ? "morning" : new Date().getHours() < 17 ? "afternoon" : "evening"}{user?.displayName ? `, ${user.displayName.split(" ")[0]}` : ""}
-        </h1>
-        <p className="mt-1 text-sm" style={{ color: "var(--muted)" }}>
-          Here&apos;s your back-office operations summary.
-        </p>
-      </div>
+  const greeting = new Date().getHours() < 12 ? "morning" : new Date().getHours() < 17 ? "afternoon" : "evening";
+  const firstName = user?.displayName ? user.displayName.split(" ")[0] : "";
 
-      <div className="grid grid-cols-4 gap-4">
-        {displayStats.map((stat) => (
-          <div
-            key={stat.label}
-            className="rounded border p-5"
-            style={{ background: "var(--card)", borderColor: "var(--border)" }}
-          >
-            <p className="text-[11px] font-semibold uppercase tracking-wider" style={{ color: "var(--muted)" }}>
-              {stat.label}
-            </p>
-            <div className="mt-2 flex items-end gap-2">
-              <span className="text-2xl font-semibold tabular-nums" style={{ color: stat.color }}>
-                {stat.value}
-              </span>
-            </div>
+  return (
+    <div className="flex flex-col" style={{ height: "calc(100vh - 4rem)" }}>
+      {/* Stats bar */}
+      <div className="flex gap-3 mb-4">
+        {displayStats.map((s) => (
+          <div key={s.label} className="flex items-center gap-2 rounded border px-3 py-2" style={{ background: "var(--card)", borderColor: "var(--border)" }}>
+            <span className="text-[11px] font-medium uppercase tracking-wider" style={{ color: "var(--muted)" }}>{s.label}</span>
+            <span className="text-sm font-semibold tabular-nums" style={{ color: "var(--foreground)" }}>{s.value}</span>
           </div>
         ))}
       </div>
 
-      <div className="grid grid-cols-3 gap-6">
-        <div
-          className="col-span-2 rounded border"
-          style={{ background: "var(--card)", borderColor: "var(--border)" }}
-        >
-          <div className="border-b px-5 py-4" style={{ borderColor: "var(--border)" }}>
-            <h2 className="text-sm font-semibold" style={{ color: "var(--foreground)" }}>Recent Activity</h2>
-          </div>
-          {activity.length === 0 ? (
-            <div className="px-5 py-8 text-center">
-              <p className="text-sm" style={{ color: "var(--muted)" }}>No activity yet. Upload documents or run analyses to see results here.</p>
+      {/* Chat area */}
+      <div className="flex-1 overflow-auto rounded border" style={{ background: "var(--card)", borderColor: "var(--border)" }}>
+        <div className="p-5 space-y-4 min-h-full flex flex-col">
+          {messages.length === 0 ? (
+            <div className="flex-1 flex flex-col items-center justify-center text-center py-16">
+              <p className="text-lg font-medium" style={{ color: "var(--foreground)" }}>
+                Good {greeting}{firstName ? `, ${firstName}` : ""}
+              </p>
+              <p className="mt-2 text-sm max-w-md" style={{ color: "var(--muted)" }}>
+                Ask me anything about your operations — reconciliation status, compliance alerts, risk metrics, or documents.
+              </p>
+              <div className="mt-6 flex flex-wrap gap-2 justify-center max-w-lg">
+                {[
+                  "What's my current compliance status?",
+                  "Any open reconciliation exceptions?",
+                  "Summarize my risk exposure",
+                  "How many documents have been processed?",
+                ].map((q) => (
+                  <button
+                    key={q}
+                    onClick={() => { setInput(q); inputRef.current?.focus(); }}
+                    className="rounded border px-3 py-1.5 text-xs transition-colors"
+                    style={{ borderColor: "var(--border)", color: "var(--muted)" }}
+                    onMouseEnter={(e) => { e.currentTarget.style.borderColor = "var(--accent)"; e.currentTarget.style.color = "var(--accent)"; }}
+                    onMouseLeave={(e) => { e.currentTarget.style.borderColor = "var(--border)"; e.currentTarget.style.color = "var(--muted)"; }}
+                  >
+                    {q}
+                  </button>
+                ))}
+              </div>
             </div>
           ) : (
-            <div className="divide-y" style={{ borderColor: "var(--border)" }}>
-              {activity.map((item, i) => (
-                <div key={i} className="flex items-start gap-3 px-5 py-3.5">
+            <>
+              {messages.map((m, i) => (
+                <div key={i} className={`flex ${m.role === "user" ? "justify-end" : "justify-start"}`}>
                   <div
-                    className="mt-1 h-1.5 w-1.5 flex-shrink-0 rounded-full"
+                    className="max-w-[75%] rounded px-4 py-3"
                     style={{
-                      background:
-                        item.status === "success" ? "#16a34a" :
-                        item.status === "warning" ? "#2563eb" :
-                        "#dc2626",
+                      background: m.role === "user" ? "var(--accent)" : "var(--background)",
+                      color: m.role === "user" ? "white" : "var(--foreground)",
                     }}
-                  />
-                  <div className="flex-1 min-w-0">
-                    <p className="text-[13px] font-medium" style={{ color: "var(--foreground)" }}>
-                      {item.action}
-                    </p>
-                    <p className="mt-0.5 text-xs" style={{ color: "var(--muted)" }}>
-                      {item.detail}
-                    </p>
+                  >
+                    {m.role === "assistant" && (
+                      <p className="text-[10px] font-semibold uppercase tracking-wider mb-1" style={{ color: "var(--muted)" }}>Assisto</p>
+                    )}
+                    <p className="text-[13px] leading-relaxed whitespace-pre-wrap">{m.content}</p>
                   </div>
-                  <span className="flex-shrink-0 text-[11px]" style={{ color: "var(--muted)" }}>
-                    {item.time}
-                  </span>
                 </div>
               ))}
-            </div>
+              {sending && (
+                <div className="flex justify-start">
+                  <div className="rounded px-4 py-3" style={{ background: "var(--background)" }}>
+                    <div className="flex items-center gap-1.5">
+                      <div className="h-1.5 w-1.5 rounded-full animate-pulse" style={{ background: "var(--muted)" }} />
+                      <div className="h-1.5 w-1.5 rounded-full animate-pulse" style={{ background: "var(--muted)", animationDelay: "0.2s" }} />
+                      <div className="h-1.5 w-1.5 rounded-full animate-pulse" style={{ background: "var(--muted)", animationDelay: "0.4s" }} />
+                    </div>
+                  </div>
+                </div>
+              )}
+              <div ref={bottomRef} />
+            </>
           )}
         </div>
+      </div>
 
-        <div
-          className="rounded border"
-          style={{ background: "var(--card)", borderColor: "var(--border)" }}
+      {/* Input */}
+      <div className="mt-3 flex items-center gap-2">
+        <input
+          ref={inputRef}
+          value={input}
+          onChange={(e) => setInput(e.target.value)}
+          onKeyDown={handleKeyDown}
+          placeholder="Ask about your operations..."
+          className="flex-1 rounded border px-4 py-2.5 text-sm"
+          style={{ background: "var(--card)", borderColor: "var(--border)", color: "var(--foreground)" }}
+          disabled={sending}
+        />
+        <button
+          onClick={send}
+          disabled={sending || !input.trim()}
+          className="rounded px-4 py-2.5 text-sm font-medium text-white transition-colors disabled:opacity-50"
+          style={{ background: "var(--accent)" }}
         >
-          <div className="border-b px-5 py-4" style={{ borderColor: "var(--border)" }}>
-            <h2 className="text-sm font-semibold" style={{ color: "var(--foreground)" }}>Quick Actions</h2>
-          </div>
-          <div className="space-y-1 p-3">
-            {[
-              { label: "Run Reconciliation", desc: "Match pending transactions", href: "/dashboard/reconciliation" },
-              { label: "Compliance Check", desc: "Scan for regulatory issues", href: "/dashboard/compliance" },
-              { label: "Upload Documents", desc: "Process new documents", href: "/dashboard/documents" },
-              { label: "Risk Assessment", desc: "Analyze portfolio risk", href: "/dashboard/risk" },
-            ].map((action) => (
-              <button
-                key={action.label}
-                onClick={() => router.push(action.href)}
-                className="w-full rounded-sm px-3 py-2.5 text-left transition-colors"
-                style={{ color: "var(--foreground)" }}
-                onMouseEnter={(e) => e.currentTarget.style.background = "var(--background)"}
-                onMouseLeave={(e) => e.currentTarget.style.background = "transparent"}
-              >
-                <p className="text-[13px] font-medium">{action.label}</p>
-                <p className="text-[11px]" style={{ color: "var(--muted)" }}>{action.desc}</p>
-              </button>
-            ))}
-          </div>
-        </div>
+          Send
+        </button>
       </div>
     </div>
   );
