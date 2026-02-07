@@ -1,0 +1,4 @@
+id,counterparty,amount,currency,date,type,description,source
+TXN-1001,Goldman Sachs,1250000.00,USD,2026-02-05,settlement,FX swap settlement,Ledger
+TXN-1002,Citadel Securities,45200.00,USD,2026-02-05,trade,Equity trade confirmation,Broker
+TXN-1003,BlackRock,567800.00,USD,2026-02-04,transfer,Fund transfer,Bank

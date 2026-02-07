@@ -17,14 +17,19 @@ export default function CompliancePage() {
   const [summary, setSummary] = useState("");
   const [entities, setEntities] = useState([]);
   const [transactions, setTransactions] = useState([]);
-  const [entitiesInput, setEntitiesInput] = useState("[]");
-  const [transactionsInput, setTransactionsInput] = useState("[]");
-  const [inputError, setInputError] = useState("");
+  // JSON inputs hidden; data is sourced from documents/datasets
   const [runs, setRuns] = useState([]);
+  const [dirty] = useState(false);
 
   useEffect(() => {
     reloadDataset();
     reloadRuns();
+    const interval = setInterval(() => {
+      if (!dirty) {
+        reloadDataset();
+      }
+    }, 8000);
+    return () => clearInterval(interval);
   }, []);
 
   async function runScan() {
@@ -43,57 +48,16 @@ export default function CompliancePage() {
       setAlerts(data.alerts || []);
       setScores(data.regulatory_scores || []);
       setSummary(data.summary || "");
-      setInputError("");
       reloadRuns();
     } catch (err) {
       console.error("Compliance scan failed:", err);
-      setInputError(err.message);
     } finally {
       setScanning(false);
     }
   }
 
-  function loadInputs() {
-    try {
-      const parsedEntities = JSON.parse(entitiesInput);
-      const parsedTransactions = JSON.parse(transactionsInput);
-      if (!Array.isArray(parsedEntities) || !Array.isArray(parsedTransactions)) {
-        throw new Error("Inputs must be JSON arrays.");
-      }
-      setEntities(parsedEntities);
-      setTransactions(parsedTransactions);
-      setAlerts([]);
-      setScores([]);
-      setSummary("");
-      setInputError("");
-    } catch (err) {
-      setInputError(err.message);
-    }
-  }
-
-  async function saveDataset() {
-    try {
-      const parsedEntities = JSON.parse(entitiesInput);
-      const parsedTransactions = JSON.parse(transactionsInput);
-      if (!Array.isArray(parsedEntities) || !Array.isArray(parsedTransactions)) {
-        throw new Error("Inputs must be JSON arrays.");
-      }
-      const res = await fetch(`${API}/api/compliance/dataset`, {
-        method: "PUT",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ entities: parsedEntities, transactions: parsedTransactions }),
-      });
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.error);
-      setEntities(data.entities || []);
-      setTransactions(data.transactions || []);
-      setEntitiesInput(JSON.stringify(data.entities || [], null, 2));
-      setTransactionsInput(JSON.stringify(data.transactions || [], null, 2));
-      setInputError("");
-    } catch (err) {
-      setInputError(err.message);
-    }
-  }
+  function loadInputs() {}
+  async function saveDataset() {}
 
   async function reloadDataset() {
     try {
@@ -102,11 +66,8 @@ export default function CompliancePage() {
       if (!res.ok) throw new Error(data.error);
       setEntities(data.entities || []);
       setTransactions(data.transactions || []);
-      setEntitiesInput(JSON.stringify(data.entities || [], null, 2));
-      setTransactionsInput(JSON.stringify(data.transactions || [], null, 2));
-    } catch (err) {
-      setInputError(err.message);
-    }
+      setDirty(false);
+    } catch (err) {}
   }
 
   async function reloadRuns() {
@@ -134,58 +95,19 @@ export default function CompliancePage() {
         </button>
       </div>
 
-      <div className="rounded border p-5 space-y-3" style={{ background: "var(--card)", borderColor: "var(--border)" }}>
-        <div className="flex items-center justify-between gap-4">
+      <div className="rounded border p-4" style={{ background: "var(--card)", borderColor: "var(--border)" }}>
+        <div className="flex items-center justify-between">
           <div>
-            <p className="text-[11px] font-semibold uppercase tracking-wider" style={{ color: "var(--muted)" }}>Input Data</p>
-            <p className="text-xs" style={{ color: "var(--muted)" }}>Paste JSON arrays for entities and transactions.</p>
+            <p className="text-xs" style={{ color: "var(--muted)" }}>Entities and transactions loaded from documents or saved datasets.</p>
           </div>
-          <div className="flex items-center gap-2">
-            <button
-              onClick={loadInputs}
-              className="rounded-sm px-3 py-1.5 text-xs font-medium"
-              style={{ background: "var(--background)", color: "var(--accent)", border: "1px solid var(--border)" }}
-            >
-              Load Local
-            </button>
-            <button
-              onClick={saveDataset}
-              className="rounded-sm px-3 py-1.5 text-xs font-medium"
-              style={{ background: "var(--background)", color: "var(--accent)", border: "1px solid var(--border)" }}
-            >
-              Save to DB
-            </button>
-            <button
-              onClick={reloadDataset}
-              className="rounded-sm px-3 py-1.5 text-xs font-medium"
-              style={{ background: "var(--background)", color: "var(--accent)", border: "1px solid var(--border)" }}
-            >
-              Reload
-            </button>
-          </div>
+          <button
+            onClick={reloadDataset}
+            className="rounded-sm px-3 py-1.5 text-xs font-medium"
+            style={{ background: "var(--background)", color: "var(--accent)", border: "1px solid var(--border)" }}
+          >
+            Refresh
+          </button>
         </div>
-        <div className="grid grid-cols-2 gap-4">
-          <textarea
-            value={entitiesInput}
-            onChange={(e) => setEntitiesInput(e.target.value)}
-            rows={6}
-            className="w-full rounded border p-3 text-xs font-mono"
-            style={{ background: "var(--background)", borderColor: "var(--border)", color: "var(--foreground)" }}
-            placeholder='[{"name":"Counterparty A","type":"Counterparty","kyc_expiry":"2026-03-01","jurisdiction":"US"}]'
-          />
-          <textarea
-            value={transactionsInput}
-            onChange={(e) => setTransactionsInput(e.target.value)}
-            rows={6}
-            className="w-full rounded border p-3 text-xs font-mono"
-            style={{ background: "var(--background)", borderColor: "var(--border)", color: "var(--foreground)" }}
-            placeholder='[{"id":"TXN-001","entity":"Counterparty A","amount":"1000","type":"Wire","date":"2026-02-07"}]'
-          />
-        </div>
-        {inputError && <p className="text-xs" style={{ color: "#b54a4a" }}>{inputError}</p>}
-        <p className="text-xs" style={{ color: "var(--muted)" }}>
-          {entities.length} entity(ies), {transactions.length} transaction(s) loaded.
-        </p>
       </div>
 
       {summary && (

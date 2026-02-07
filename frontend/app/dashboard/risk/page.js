@@ -15,14 +15,19 @@ export default function RiskPage() {
   const [recommendations, setRecommendations] = useState([]);
   const [portfolio, setPortfolio] = useState([]);
   const [scenarios, setScenarios] = useState([]);
-  const [portfolioInput, setPortfolioInput] = useState("[]");
-  const [scenariosInput, setScenariosInput] = useState("[]");
-  const [inputError, setInputError] = useState("");
+  // JSON inputs hidden; data is sourced from documents/datasets
   const [runs, setRuns] = useState([]);
+  const [dirty] = useState(false);
 
   useEffect(() => {
     reloadDataset();
     reloadRuns();
+    const interval = setInterval(() => {
+      if (!dirty) {
+        reloadDataset();
+      }
+    }, 8000);
+    return () => clearInterval(interval);
   }, []);
 
   async function runAnalysis() {
@@ -42,58 +47,16 @@ export default function RiskPage() {
       setExposures(data.exposures || []);
       setStressTests(data.stress_tests || []);
       setRecommendations(data.recommendations || []);
-      setInputError("");
       reloadRuns();
     } catch (err) {
       console.error("Risk analysis failed:", err);
-      setInputError(err.message);
     } finally {
       setRunning(false);
     }
   }
 
-  function loadInputs() {
-    try {
-      const parsedPortfolio = JSON.parse(portfolioInput);
-      const parsedScenarios = JSON.parse(scenariosInput);
-      if (!Array.isArray(parsedPortfolio) || !Array.isArray(parsedScenarios)) {
-        throw new Error("Inputs must be JSON arrays.");
-      }
-      setPortfolio(parsedPortfolio);
-      setScenarios(parsedScenarios);
-      setMetrics(null);
-      setExposures([]);
-      setStressTests([]);
-      setRecommendations([]);
-      setInputError("");
-    } catch (err) {
-      setInputError(err.message);
-    }
-  }
-
-  async function saveDataset() {
-    try {
-      const parsedPortfolio = JSON.parse(portfolioInput);
-      const parsedScenarios = JSON.parse(scenariosInput);
-      if (!Array.isArray(parsedPortfolio) || !Array.isArray(parsedScenarios)) {
-        throw new Error("Inputs must be JSON arrays.");
-      }
-      const res = await fetch(`${API}/api/risk/dataset`, {
-        method: "PUT",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ portfolio: parsedPortfolio, scenarios: parsedScenarios }),
-      });
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.error);
-      setPortfolio(data.portfolio || []);
-      setScenarios(data.scenarios || []);
-      setPortfolioInput(JSON.stringify(data.portfolio || [], null, 2));
-      setScenariosInput(JSON.stringify(data.scenarios || [], null, 2));
-      setInputError("");
-    } catch (err) {
-      setInputError(err.message);
-    }
-  }
+  function loadInputs() {}
+  async function saveDataset() {}
 
   async function reloadDataset() {
     try {
@@ -102,11 +65,8 @@ export default function RiskPage() {
       if (!res.ok) throw new Error(data.error);
       setPortfolio(data.portfolio || []);
       setScenarios(data.scenarios || []);
-      setPortfolioInput(JSON.stringify(data.portfolio || [], null, 2));
-      setScenariosInput(JSON.stringify(data.scenarios || [], null, 2));
-    } catch (err) {
-      setInputError(err.message);
-    }
+      setDirty(false);
+    } catch (err) {}
   }
 
   async function reloadRuns() {
@@ -150,58 +110,19 @@ export default function RiskPage() {
         </button>
       </div>
 
-      <div className="rounded border p-5 space-y-3" style={{ background: "var(--card)", borderColor: "var(--border)" }}>
-        <div className="flex items-center justify-between gap-4">
+      <div className="rounded border p-4" style={{ background: "var(--card)", borderColor: "var(--border)" }}>
+        <div className="flex items-center justify-between">
           <div>
-            <p className="text-[11px] font-semibold uppercase tracking-wider" style={{ color: "var(--muted)" }}>Input Data</p>
-            <p className="text-xs" style={{ color: "var(--muted)" }}>Paste JSON arrays for portfolio and scenarios.</p>
+            <p className="text-xs" style={{ color: "var(--muted)" }}>Portfolio and scenarios loaded from documents or saved datasets.</p>
           </div>
-          <div className="flex items-center gap-2">
-            <button
-              onClick={loadInputs}
-              className="rounded-sm px-3 py-1.5 text-xs font-medium"
-              style={{ background: "var(--background)", color: "var(--accent)", border: "1px solid var(--border)" }}
-            >
-              Load Local
-            </button>
-            <button
-              onClick={saveDataset}
-              className="rounded-sm px-3 py-1.5 text-xs font-medium"
-              style={{ background: "var(--background)", color: "var(--accent)", border: "1px solid var(--border)" }}
-            >
-              Save to DB
-            </button>
-            <button
-              onClick={reloadDataset}
-              className="rounded-sm px-3 py-1.5 text-xs font-medium"
-              style={{ background: "var(--background)", color: "var(--accent)", border: "1px solid var(--border)" }}
-            >
-              Reload
-            </button>
-          </div>
+          <button
+            onClick={reloadDataset}
+            className="rounded-sm px-3 py-1.5 text-xs font-medium"
+            style={{ background: "var(--background)", color: "var(--accent)", border: "1px solid var(--border)" }}
+          >
+            Refresh
+          </button>
         </div>
-        <div className="grid grid-cols-2 gap-4">
-          <textarea
-            value={portfolioInput}
-            onChange={(e) => setPortfolioInput(e.target.value)}
-            rows={6}
-            className="w-full rounded border p-3 text-xs font-mono"
-            style={{ background: "var(--background)", borderColor: "var(--border)", color: "var(--foreground)" }}
-            placeholder='[{"asset":"US Equities","exposure":"1000000","percentage":40}]'
-          />
-          <textarea
-            value={scenariosInput}
-            onChange={(e) => setScenariosInput(e.target.value)}
-            rows={6}
-            className="w-full rounded border p-3 text-xs font-mono"
-            style={{ background: "var(--background)", borderColor: "var(--border)", color: "var(--foreground)" }}
-            placeholder='["Equity Market -10%","Rates +100bps"]'
-          />
-        </div>
-        {inputError && <p className="text-xs" style={{ color: "#b54a4a" }}>{inputError}</p>}
-        <p className="text-xs" style={{ color: "var(--muted)" }}>
-          {portfolio.length} portfolio item(s), {scenarios.length} scenario(s) loaded.
-        </p>
       </div>
 
       {recommendations.length > 0 && (

@@ -16,13 +16,17 @@ export default function ReconciliationPage() {
   const [aiResults, setAiResults] = useState(null);
   const [recommendations, setRecommendations] = useState([]);
   const [transactions, setTransactions] = useState([]);
-  const [input, setInput] = useState("[]");
-  const [inputError, setInputError] = useState("");
+  // JSON input hidden; data is sourced from documents/datasets
   const [runs, setRuns] = useState([]);
+  const [dirty] = useState(false);
 
   useEffect(() => {
     reloadDataset();
     reloadRuns();
+    const interval = setInterval(() => {
+      if (!dirty) reloadDataset();
+    }, 8000);
+    return () => clearInterval(interval);
   }, []);
 
   async function runReconciliation() {
@@ -40,49 +44,17 @@ export default function ReconciliationPage() {
       if (!res.ok) throw new Error(data.error);
       setAiResults(data.results || []);
       setRecommendations(data.recommendations || []);
-      setInputError("");
       reloadRuns();
     } catch (err) {
       console.error("Reconciliation failed:", err);
-      setInputError(err.message);
     } finally {
       setRunning(false);
     }
   }
 
-  function loadTransactions() {
-    try {
-      const parsed = JSON.parse(input);
-      if (!Array.isArray(parsed)) {
-        throw new Error("Input must be a JSON array.");
-      }
-      setTransactions(parsed);
-      setAiResults(null);
-      setRecommendations([]);
-      setInputError("");
-    } catch (err) {
-      setInputError(err.message);
-    }
-  }
+  function loadTransactions() {}
 
-  async function saveDataset() {
-    try {
-      const parsed = JSON.parse(input);
-      if (!Array.isArray(parsed)) throw new Error("Input must be a JSON array.");
-      const res = await fetch(`${API}/api/reconciliation/dataset`, {
-        method: "PUT",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ transactions: parsed }),
-      });
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.error);
-      setTransactions(data.transactions || []);
-      setInput(JSON.stringify(data.transactions || [], null, 2));
-      setInputError("");
-    } catch (err) {
-      setInputError(err.message);
-    }
-  }
+  async function saveDataset() {}
 
   async function reloadDataset() {
     try {
@@ -91,9 +63,8 @@ export default function ReconciliationPage() {
       if (!res.ok) throw new Error(data.error);
       setTransactions(data.transactions || []);
       setInput(JSON.stringify(data.transactions || [], null, 2));
-    } catch (err) {
-      setInputError(err.message);
-    }
+      setDirty(false);
+    } catch (err) {}
   }
 
   async function reloadRuns() {
@@ -139,46 +110,19 @@ export default function ReconciliationPage() {
         </button>
       </div>
 
-      <div className="rounded border p-5 space-y-3" style={{ background: "var(--card)", borderColor: "var(--border)" }}>
-        <div className="flex items-center justify-between gap-4">
+      <div className="rounded border p-4" style={{ background: "var(--card)", borderColor: "var(--border)" }}>
+        <div className="flex items-center justify-between">
           <div>
-            <p className="text-[11px] font-semibold uppercase tracking-wider" style={{ color: "var(--muted)" }}>Transactions Input</p>
-            <p className="text-xs" style={{ color: "var(--muted)" }}>Paste a JSON array of transactions.</p>
+            <p className="text-xs" style={{ color: "var(--muted)" }}>Transactions loaded from documents or saved datasets.</p>
           </div>
-          <div className="flex items-center gap-2">
-            <button
-              onClick={loadTransactions}
-              className="rounded-sm px-3 py-1.5 text-xs font-medium"
-              style={{ background: "var(--background)", color: "var(--accent)", border: "1px solid var(--border)" }}
-            >
-              Load Local
-            </button>
-            <button
-              onClick={saveDataset}
-              className="rounded-sm px-3 py-1.5 text-xs font-medium"
-              style={{ background: "var(--background)", color: "var(--accent)", border: "1px solid var(--border)" }}
-            >
-              Save to DB
-            </button>
-            <button
-              onClick={reloadDataset}
-              className="rounded-sm px-3 py-1.5 text-xs font-medium"
-              style={{ background: "var(--background)", color: "var(--accent)", border: "1px solid var(--border)" }}
-            >
-              Reload
-            </button>
-          </div>
+          <button
+            onClick={reloadDataset}
+            className="rounded-sm px-3 py-1.5 text-xs font-medium"
+            style={{ background: "var(--background)", color: "var(--accent)", border: "1px solid var(--border)" }}
+          >
+            Refresh
+          </button>
         </div>
-        <textarea
-          value={input}
-          onChange={(e) => setInput(e.target.value)}
-          rows={6}
-          className="w-full rounded border p-3 text-xs font-mono"
-          style={{ background: "var(--background)", borderColor: "var(--border)", color: "var(--foreground)" }}
-          placeholder='[{"id":"TXN-001","source":"Ledger","counterparty":"ABC","amount":"1000","date":"2026-02-07","type":"trade"}]'
-        />
-        {inputError && <p className="text-xs" style={{ color: "#b54a4a" }}>{inputError}</p>}
-        <p className="text-xs" style={{ color: "var(--muted)" }}>{transactions.length} transaction(s) loaded.</p>
       </div>
 
       <div className="grid grid-cols-3 gap-4">
@@ -261,7 +205,7 @@ export default function ReconciliationPage() {
             </thead>
             <tbody className="divide-y" style={{ borderColor: "var(--border)" }}>
               {filtered.map((txn, i) => (
-                <tr key={txn.id || i}>
+                <tr key={`${txn.id || "row"}-${i}`}>
                   <td className="px-5 py-3 text-[13px] font-medium" style={{ color: "var(--foreground)" }}>{txn.id || "—"}</td>
                   <td className="px-5 py-3 text-[13px]" style={{ color: "var(--muted)" }}>{txn.source || "—"}</td>
                   <td className="px-5 py-3 text-[13px]" style={{ color: "var(--foreground)" }}>{txn.counterparty || "—"}</td>

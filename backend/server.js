@@ -26,12 +26,14 @@ const documentRoutes = require("./routes/documents");
 const reconciliationRoutes = require("./routes/reconciliation");
 const complianceRoutes = require("./routes/compliance");
 const riskRoutes = require("./routes/risk");
+const reportRoutes = require("./routes/reports");
 
 app.use("/api/users", userRoutes);
 app.use("/api/documents", documentRoutes);
 app.use("/api/reconciliation", reconciliationRoutes);
 app.use("/api/compliance", complianceRoutes);
 app.use("/api/risk", riskRoutes);
+app.use("/api/reports", reportRoutes);
 
 // Health check
 app.get("/api/health", (req, res) => {
