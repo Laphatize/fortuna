@@ -1,0 +1,7 @@
+[project]
+name = "my-backend"
+version = "0.1.0"
+dependencies = [
+    "dedalus-labs",
+    "python-dotenv",
+]

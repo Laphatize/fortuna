@@ -5,24 +5,24 @@ html {
 }
 
 :root {
-  --background: #faf7f2;
-  --foreground: #2c1810;
+  --background: #ffffff;
+  --foreground: #111827;
   --card: #ffffff;
-  --border: #e0d5c7;
-  --muted: #8c7b6b;
-  --accent: #6b4c3b;
-  --accent-hover: #5a3d2e;
-  --input-bg: #faf7f2;
-  --input-border: #d4c9bb;
-  --input-focus: #6b4c3b;
-  --error-bg: #fdf2f2;
-  --error-text: #9b2c2c;
+  --border: #e5e7eb;
+  --muted: #6b7280;
+  --accent: #2563eb;
+  --accent-hover: #1d4ed8;
+  --input-bg: #ffffff;
+  --input-border: #d1d5db;
+  --input-focus: #2563eb;
+  --error-bg: #fef2f2;
+  --error-text: #b91c1c;
 }
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --background: #faf7f2;
-    --foreground: #2c1810;
+    --background: #ffffff;
+    --foreground: #111827;
   }
 }
 
