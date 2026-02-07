@@ -1,6 +1,6 @@
 const express = require("express");
 const router = express.Router();
-const openai = require("../lib/openai");
+const { dedalus, openai, hasDedalus, hasOpenAI } = require("../lib/openai");
 const ComplianceDataset = require("../models/ComplianceDataset");
 const ComplianceRun = require("../models/ComplianceRun");
 
@@ -40,12 +40,14 @@ router.post("/scan", async (req, res) => {
   try {
     const { entities, transactions } = req.body;
 
-    if (!process.env.DEDALUS_API_KEY && !process.env.OPENAI_API_KEY) {
+    if (!hasDedalus && !hasOpenAI) {
       return res.status(500).json({ error: "DEDALUS_API_KEY or OPENAI_API_KEY not set" });
     }
 
-    const response = await openai.chat.completions.create({
-      model: "openai/gpt-4o-mini",
+    const client = dedalus || openai;
+    const model = hasDedalus ? "openai/gpt-4o-mini" : "gpt-4o-mini";
+    const response = await client.chat.completions.create({
+      model,
       messages: [
         {
           role: "system",

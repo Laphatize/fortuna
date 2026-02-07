@@ -3,7 +3,7 @@ const router = express.Router();
 const multer = require("multer");
 const path = require("path");
 const fs = require("fs");
-const openai = require("../lib/openai");
+const { dedalus, openai, hasDedalus, hasOpenAI } = require("../lib/openai");
 const Document = require("../models/Document");
 const DocumentRun = require("../models/DocumentRun");
 const DocumentChat = require("../models/DocumentChat");
@@ -33,6 +33,8 @@ router.post("/process", upload.single("file"), async (req, res) => {
       return res.status(400).json({ error: "No file or text provided" });
     }
 
+    const isPdf = !!file && file.mimetype === "application/pdf";
+    const isImage = !!file && file.mimetype.startsWith("image/");
     const content =
       text ||
       (file && file.mimetype.startsWith("text/")
@@ -48,7 +50,7 @@ router.post("/process", upload.single("file"), async (req, res) => {
       status: "uploaded",
     });
 
-    if (!content) {
+    if (!content && !isPdf && !isImage) {
       await DocumentRun.create({
         documentId: doc._id,
         status: "error",
@@ -59,33 +61,133 @@ router.post("/process", upload.single("file"), async (req, res) => {
       return res.json({ document: doc, result: null, error: "Text extraction unavailable for this file type" });
     }
 
-    if (!process.env.DEDALUS_API_KEY && !process.env.OPENAI_API_KEY) {
+    if (!hasDedalus && !hasOpenAI) {
       return res.status(500).json({ error: "DEDALUS_API_KEY or OPENAI_API_KEY not set" });
     }
 
-    const response = await openai.chat.completions.create({
-      model: "openai/gpt-4o-mini",
-      messages: [
-        {
-          role: "system",
-          content: `You are a financial document processing AI. Extract structured data from the provided document.
+    const chatClient = dedalus || openai;
+    const chatModel = hasDedalus ? "openai/gpt-4o-mini" : "gpt-4o-mini";
+    let parsed;
+
+    try {
+      if ((isPdf || isImage) && openai) {
+        const bytes = fs.readFileSync(file.path);
+        const base64 = bytes.toString("base64");
+        const input = [
+          {
+            role: "user",
+            content: [
+              {
+                type: "input_text",
+                text:
+                  "You are a financial document processing AI. Extract structured data from the provided document. " +
+                  "Return a JSON object with: document_type, fields (field_name, value, confidence 0-100), " +
+                  "summary (one sentence), flags (array), extracted_text (short text excerpt). " +
+                  "Return ONLY valid JSON, no markdown.",
+              },
+              isPdf
+                ? {
+                    type: "input_file",
+                    filename: file.originalname,
+                    file_data: base64,
+                  }
+                : {
+                    type: "input_image",
+                    image_url: `data:${file.mimetype};base64,${base64}`,
+                  },
+            ],
+          },
+        ];
+
+        const response = await openai.responses.create({
+          model: "gpt-4o-mini",
+          input,
+          text: { format: { type: "json_object" } },
+        });
+
+        const textOut =
+          response.output_text ||
+          response.output?.flatMap((o) => o.content || []).find((c) => c.type === "output_text")?.text ||
+          "";
+        if (!textOut) throw new Error("No text output from OCR response");
+        parsed = JSON.parse(textOut);
+      } else if (isPdf) {
+        await DocumentRun.create({
+          documentId: doc._id,
+          status: "error",
+          error: "PDF OCR requires OPENAI_API_KEY",
+        });
+        doc.status = "error";
+        await doc.save();
+        return res.json({
+          document: doc,
+          result: null,
+          error: "PDF OCR requires OPENAI_API_KEY",
+        });
+      } else if (isImage) {
+        const bytes = fs.readFileSync(file.path);
+        const base64 = bytes.toString("base64");
+        const response = await chatClient.chat.completions.create({
+          model: chatModel,
+          messages: [
+            {
+              role: "system",
+              content: `You are a financial document processing AI. Extract structured data from the provided document.
 Return a JSON object with:
 - "document_type": the type of document (e.g., "Trade Confirmation", "Invoice", "Settlement Statement", "KYC Document", "Margin Call", "SWIFT Message")
 - "fields": an array of objects, each with "field_name", "value", and "confidence" (0-100)
 - "summary": a one-sentence summary of the document
 - "flags": an array of any issues or anomalies detected (empty array if none)
+- "extracted_text": short text excerpt from the document
 Return ONLY valid JSON, no markdown.`,
-        },
-        {
-          role: "user",
-          content: `Process this financial document:\n\n${content.substring(0, 8000)}`,
-        },
-      ],
-      response_format: { type: "json_object" },
-      temperature: 0.1,
-    });
-
-    const parsed = JSON.parse(response.choices[0].message.content);
+            },
+            {
+              role: "user",
+              content: [
+                { type: "text", text: "Process this document image." },
+                { type: "image_url", image_url: { url: `data:${file.mimetype};base64,${base64}` } },
+              ],
+            },
+          ],
+          response_format: { type: "json_object" },
+          temperature: 0.1,
+        });
+        parsed = JSON.parse(response.choices[0].message.content);
+      } else {
+        const response = await chatClient.chat.completions.create({
+          model: chatModel,
+          messages: [
+            {
+              role: "system",
+              content: `You are a financial document processing AI. Extract structured data from the provided document.
+Return a JSON object with:
+- "document_type": the type of document (e.g., "Trade Confirmation", "Invoice", "Settlement Statement", "KYC Document", "Margin Call", "SWIFT Message")
+- "fields": an array of objects, each with "field_name", "value", and "confidence" (0-100)
+- "summary": a one-sentence summary of the document
+- "flags": an array of any issues or anomalies detected (empty array if none)
+- "extracted_text": short text excerpt from the document
+Return ONLY valid JSON, no markdown.`,
+            },
+            {
+              role: "user",
+              content: `Process this financial document:\n\n${content.substring(0, 8000)}`,
+            },
+          ],
+          response_format: { type: "json_object" },
+          temperature: 0.1,
+        });
+        parsed = JSON.parse(response.choices[0].message.content);
+      }
+    } catch (aiError) {
+      await DocumentRun.create({
+        documentId: doc._id,
+        status: "error",
+        error: aiError.message,
+      });
+      doc.status = "error";
+      await doc.save();
+      return res.status(500).json({ error: aiError.message });
+    }
     await DocumentRun.create({
       documentId: doc._id,
       status: "success",
@@ -93,6 +195,9 @@ Return ONLY valid JSON, no markdown.`,
     });
 
     doc.aiResult = parsed;
+    if (parsed?.extracted_text && !doc.extractedText) {
+      doc.extractedText = parsed.extracted_text.substring(0, 20000);
+    }
     doc.status = "processed";
     await doc.save();
 
@@ -133,8 +238,8 @@ router.post("/:id/chat", async (req, res) => {
     const doc = await Document.findById(req.params.id);
     if (!doc) return res.status(404).json({ error: "Not found" });
 
-    if (!process.env.OPENAI_API_KEY) {
-      return res.status(500).json({ error: "OPENAI_API_KEY not set" });
+    if (!hasDedalus && !hasOpenAI) {
+      return res.status(500).json({ error: "DEDALUS_API_KEY or OPENAI_API_KEY not set" });
     }
 
     const chat =
@@ -151,8 +256,11 @@ router.post("/:id/chat", async (req, res) => {
       ? `Document content (truncated):\n${doc.extractedText.substring(0, 8000)}`
       : "Document content is unavailable (binary file).";
 
-    const response = await openai.chat.completions.create({
-      model: "openai/gpt-4o-mini",
+    const chatClient = dedalus || openai;
+    const chatModel = hasDedalus ? "openai/gpt-4o-mini" : "gpt-4o-mini";
+
+    const response = await chatClient.chat.completions.create({
+      model: chatModel,
       messages: [
         system,
         { role: "user", content: docContext },

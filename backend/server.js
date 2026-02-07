@@ -8,8 +8,9 @@ const app = express();
 
 // Middleware
 app.use(cors({ origin: process.env.FRONTEND_URL || "http://localhost:3000" }));
-// Increase payload limit for document uploads
-app.use(express.json({ limit: "25mb" }));
+// Increase payload limit for large JSON inputs (multipart handled by multer)
+app.use(express.json({ limit: "50mb" }));
+app.use(express.urlencoded({ extended: true, limit: "50mb" }));
 app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 
 // MongoDB connection
