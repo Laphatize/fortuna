@@ -21,6 +21,21 @@ export default function DocumentsPage() {
   const [error, setError] = useState("");
   const fileRef = useRef(null);
 
+  function formatValue(value) {
+    if (value === null || value === undefined) return "—";
+    if (typeof value === "string" || typeof value === "number" || typeof value === "boolean") {
+      return String(value);
+    }
+    if (Array.isArray(value)) {
+      return value.map((v) => formatValue(v)).join(", ");
+    }
+    try {
+      return JSON.stringify(value);
+    } catch {
+      return String(value);
+    }
+  }
+
   useEffect(() => {
     refreshDocuments();
   }, []);
@@ -237,7 +252,7 @@ export default function DocumentsPage() {
                       {selectedDoc.aiResult.fields.map((f, i) => (
                         <tr key={i}>
                           <td className="py-2 text-[13px]" style={{ color: "var(--muted)" }}>{f.field_name}</td>
-                          <td className="py-2 text-[13px] font-medium" style={{ color: "var(--foreground)" }}>{f.value}</td>
+                          <td className="py-2 text-[13px] font-medium" style={{ color: "var(--foreground)" }}>{formatValue(f.value)}</td>
                           <td className="py-2 text-right text-[13px] tabular-nums" style={{ color: f.confidence >= 90 ? "#3d8c5c" : "#c4913b" }}>{f.confidence}%</td>
                         </tr>
                       ))}

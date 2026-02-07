@@ -1,8 +1,9 @@
 const express = require("express");
 const router = express.Router();
-const openai = require("../lib/openai");
+const { dedalus, openai, hasDedalus, hasOpenAI } = require("../lib/openai");
 const RiskDataset = require("../models/RiskDataset");
 const RiskRun = require("../models/RiskRun");
+const Report = require("../models/Report");
 
 async function getOrCreateDataset() {
   let dataset = await RiskDataset.findOne();
@@ -40,16 +41,21 @@ router.post("/analyze", async (req, res) => {
   try {
     const { portfolio, scenarios } = req.body;
 
-    if (!process.env.DEDALUS_API_KEY && !process.env.OPENAI_API_KEY) {
+    if (!hasDedalus && !hasOpenAI) {
       return res.status(500).json({ error: "DEDALUS_API_KEY or OPENAI_API_KEY not set" });
     }
 
-    const response = await openai.chat.completions.create({
-      model: "openai/gpt-4o-mini",
-      messages: [
-        {
-          role: "system",
-          content: `You are a financial risk assessment AI. Analyze the provided portfolio and run stress tests.
+    const primary = hasDedalus ? dedalus : openai;
+    const secondary = hasDedalus && hasOpenAI ? openai : null;
+    const primaryModel = hasDedalus ? "openai/gpt-4o-mini" : "gpt-4o-mini";
+
+    const callModel = async (client, model) =>
+      client.chat.completions.create({
+        model,
+        messages: [
+          {
+            role: "system",
+            content: `You are a financial risk assessment AI. Analyze the provided portfolio and run stress tests.
 Evaluate:
 - Value at Risk (VaR) at 95% confidence
 - Expected Shortfall (CVaR)
@@ -64,15 +70,26 @@ Return a JSON object with:
 - "stress_tests": array of objects with "scenario", "impact" (dollar string), "severity" (high/medium/low), "detail"
 - "recommendations": array of risk mitigation suggestions
 Return ONLY valid JSON, no markdown.`,
-        },
-        {
-          role: "user",
-          content: `Analyze this portfolio:\n${JSON.stringify(portfolio || [])}\n\nStress scenarios:\n${JSON.stringify(scenarios || [])}`,
-        },
-      ],
-      response_format: { type: "json_object" },
-      temperature: 0.1,
-    });
+          },
+          {
+            role: "user",
+            content: `Analyze this portfolio:\n${JSON.stringify(portfolio || [])}\n\nStress scenarios:\n${JSON.stringify(scenarios || [])}`,
+          },
+        ],
+        response_format: { type: "json_object" },
+        temperature: 0.1,
+      });
+
+    let response;
+    try {
+      response = await callModel(primary, primaryModel);
+    } catch (err) {
+      if (err?.status === 401 && secondary) {
+        response = await callModel(secondary, "gpt-4o-mini");
+      } else {
+        throw err;
+      }
+    }
 
     const parsed = JSON.parse(response.choices[0].message.content);
     const dataset = await getOrCreateDataset();
@@ -90,6 +107,14 @@ Return ONLY valid JSON, no markdown.`,
       status: "success",
     });
 
+    await Report.create({
+      type: "risk",
+      title: "Risk Report",
+      summary: parsed.metrics?.var_95 ? `VaR: ${parsed.metrics.var_95}` : "Risk run summary",
+      payload: run,
+      status: "success",
+    });
+
     res.json({ ...parsed, runId: run._id });
   } catch (error) {
     console.error("Risk analysis error:", error);
@@ -99,7 +124,14 @@ Return ONLY valid JSON, no markdown.`,
       status: "error",
       error: error.message,
     });
-    res.status(500).json({ error: "Failed to run risk analysis" });
+    await Report.create({
+      type: "risk",
+      title: "Risk Report (Error)",
+      summary: error.message,
+      payload: { portfolio: req.body?.portfolio || [], scenarios: req.body?.scenarios || [] },
+      status: "error",
+    });
+    res.status(error.status || 500).json({ error: error.message || "Failed to run risk analysis" });
   }
 });
 

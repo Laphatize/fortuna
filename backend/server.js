@@ -8,8 +8,9 @@ const app = express();
 
 // Middleware
 app.use(cors({ origin: process.env.FRONTEND_URL || "http://localhost:3000" }));
-// Increase payload limit for document uploads
-app.use(express.json({ limit: "25mb" }));
+// Increase payload limit for large JSON inputs (multipart handled by multer)
+app.use(express.json({ limit: "50mb" }));
+app.use(express.urlencoded({ extended: true, limit: "50mb" }));
 app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 
 // MongoDB connection
@@ -25,12 +26,14 @@ const documentRoutes = require("./routes/documents");
 const reconciliationRoutes = require("./routes/reconciliation");
 const complianceRoutes = require("./routes/compliance");
 const riskRoutes = require("./routes/risk");
+const reportRoutes = require("./routes/reports");
 
 app.use("/api/users", userRoutes);
 app.use("/api/documents", documentRoutes);
 app.use("/api/reconciliation", reconciliationRoutes);
 app.use("/api/compliance", complianceRoutes);
 app.use("/api/risk", riskRoutes);
+app.use("/api/reports", reportRoutes);
 
 // Health check
 app.get("/api/health", (req, res) => {

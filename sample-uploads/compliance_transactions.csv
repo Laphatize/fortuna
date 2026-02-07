@@ -1,0 +1,4 @@
+id,entity,amount,currency,date,type,frequency
+CMP-2001,Offshore Fund VII,12500000,USD,2026-02-05,Wire Transfer,3x in 24hrs
+CMP-2002,Meridian Trading Co.,890000,USD,2026-02-04,Securities Purchase,
+CMP-2003,Internal Transfer,5000000,USD,2026-02-04,Affiliate Transfer,
