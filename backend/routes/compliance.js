@@ -38,11 +38,24 @@ router.get("/runs", async (_req, res) => {
 // POST /api/compliance/scan
 router.post("/scan", async (req, res) => {
   try {
-    const { entities, transactions } = req.body;
+    const { entities, transactions, selectedRules } = req.body;
+    const rules = selectedRules || ["AML", "KYC", "OFAC", "SOX", "RegW", "Patterns"];
 
     if (!process.env.DEDALUS_API_KEY && !process.env.OPENAI_API_KEY) {
       return res.status(500).json({ error: "DEDALUS_API_KEY or OPENAI_API_KEY not set" });
     }
+
+    const rulesText = rules.map(rule => {
+      const ruleMap = {
+        "AML": "- AML (Anti-Money Laundering) red flags",
+        "KYC": "- KYC (Know Your Customer) issues",
+        "OFAC": "- OFAC sanctions screening concerns",
+        "SOX": "- SOX (Sarbanes-Oxley) control violations",
+        "RegW": "- Regulation W affiliate transaction limits",
+        "Patterns": "- Unusual transaction patterns"
+      };
+      return ruleMap[rule] || "";
+    }).filter(Boolean).join("\n");
 
     const response = await openai.chat.completions.create({
       model: "openai/gpt-4o-mini",
@@ -51,12 +64,7 @@ router.post("/scan", async (req, res) => {
           role: "system",
           content: `You are a financial compliance AI. Analyze the provided entities and transactions for regulatory compliance issues.
 Check for:
-- AML (Anti-Money Laundering) red flags
-- KYC (Know Your Customer) issues
-- OFAC sanctions screening concerns
-- SOX (Sarbanes-Oxley) control violations
-- Regulation W affiliate transaction limits
-- Unusual transaction patterns
+${rulesText}
 
 Return a JSON object with:
 - "alerts": array of objects with "id" (generate CMP-xxx), "rule", "entity", "severity" (high/medium/low), "detail", "recommended_action"
@@ -82,13 +90,14 @@ Return ONLY valid JSON, no markdown.`,
       datasetId: dataset._id,
       entities: entities || [],
       transactions: transactions || [],
+      selectedRules: rules,
       alerts: parsed.alerts || [],
       regulatoryScores: parsed.regulatory_scores || [],
       summary: parsed.summary || "",
       status: "success",
     });
 
-    res.json({ ...parsed, runId: run._id });
+    res.json({ ...parsed, runId: run._id, selectedRules: rules });
   } catch (error) {
     console.error("Compliance scan error:", error);
     await ComplianceRun.create({

@@ -21,6 +21,16 @@ export default function CompliancePage() {
   const [transactionsInput, setTransactionsInput] = useState("[]");
   const [inputError, setInputError] = useState("");
   const [runs, setRuns] = useState([]);
+  const [selectedRules, setSelectedRules] = useState(["AML", "KYC", "OFAC", "SOX", "RegW", "Patterns"]);
+
+  const complianceRules = [
+    { id: "AML", label: "AML - Anti-Money Laundering" },
+    { id: "KYC", label: "KYC - Know Your Customer" },
+    { id: "OFAC", label: "OFAC - Sanctions Screening" },
+    { id: "SOX", label: "SOX - Sarbanes-Oxley" },
+    { id: "RegW", label: "Regulation W - Affiliate Limits" },
+    { id: "Patterns", label: "Transaction Patterns" },
+  ];
 
   useEffect(() => {
     reloadDataset();
@@ -36,7 +46,7 @@ export default function CompliancePage() {
       const res = await fetch(`${API}/api/compliance/scan`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ entities, transactions }),
+        body: JSON.stringify({ entities, transactions, selectedRules }),
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error);
@@ -132,6 +142,32 @@ export default function CompliancePage() {
           {scanning && <div className="h-3 w-3 animate-spin rounded-full border border-white/30 border-t-white" />}
           {scanning ? "Scanning..." : "Run Compliance Scan"}
         </button>
+      </div>
+
+      <div className="rounded border p-5 space-y-3" style={{ background: "var(--card)", borderColor: "var(--border)" }}>
+        <div>
+          <p className="text-[11px] font-semibold uppercase tracking-wider" style={{ color: "var(--muted)" }}>Compliance Rules to Check</p>
+          <p className="text-xs mt-1" style={{ color: "var(--muted)" }}>Select which compliance rules to scan for.</p>
+        </div>
+        <div className="grid grid-cols-2 gap-3">
+          {complianceRules.map((rule) => (
+            <label key={rule.id} className="flex items-center gap-2 cursor-pointer">
+              <input
+                type="checkbox"
+                checked={selectedRules.includes(rule.id)}
+                onChange={(e) => {
+                  if (e.target.checked) {
+                    setSelectedRules([...selectedRules, rule.id]);
+                  } else {
+                    setSelectedRules(selectedRules.filter((r) => r !== rule.id));
+                  }
+                }}
+                className="w-4 h-4"
+              />
+              <span className="text-xs" style={{ color: "var(--foreground)" }}>{rule.label}</span>
+            </label>
+          ))}
+        </div>
       </div>
 
       <div className="rounded border p-5 space-y-3" style={{ background: "var(--card)", borderColor: "var(--border)" }}>

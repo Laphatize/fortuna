@@ -5,6 +5,7 @@ const ComplianceRunSchema = new mongoose.Schema(
     datasetId: { type: mongoose.Schema.Types.ObjectId, ref: "ComplianceDataset" },
     entities: { type: [Object], default: [] },
     transactions: { type: [Object], default: [] },
+    selectedRules: { type: [String], default: ["AML", "KYC", "OFAC", "SOX", "RegW", "Patterns"] },
     alerts: { type: [Object], default: [] },
     regulatoryScores: { type: [Object], default: [] },
     summary: { type: String, default: "" },
