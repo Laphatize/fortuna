@@ -111,42 +111,41 @@ export default function DataSourcesPage() {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-xl font-semibold" style={{ color: "var(--foreground)" }}>Data Sources</h1>
-        <p className="mt-1 text-sm" style={{ color: "var(--muted)" }}>Connect communication channels and systems to monitor for compliance violations</p>
+        <h1 className="text-xl font-semibold text-gray-900">Data Sources</h1>
+        <p className="mt-1 text-sm text-gray-500">Connect communication channels and systems to monitor for compliance violations</p>
       </div>
 
       {/* Connected Sources */}
       {connectedSources.length > 0 && (
-        <div className="rounded border" style={{ background: "var(--card)", borderColor: "var(--border)" }}>
-          <div className="px-5 py-4" style={{ borderColor: "var(--border)" }}>
-            <h2 className="text-sm font-semibold" style={{ color: "var(--foreground)" }}>Connected Sources</h2>
+        <div className="rounded-xl border border-gray-200 bg-white shadow-sm">
+          <div className="border-b border-gray-100 px-5 py-4">
+            <h2 className="text-sm font-semibold text-gray-900">Connected Sources</h2>
           </div>
-          <div className="divide-y" style={{ borderColor: "var(--border)" }}>
+          <div className="divide-y divide-gray-100">
             {connectedSources.map((source) => {
               const integration = integrations.find((i) => i.id === source.type);
               return (
-                <div key={source.id} className="flex items-center justify-between px-5 py-4">
+                <div key={source.id} className="flex items-center justify-between px-5 py-4 hover:bg-gray-50 transition-colors">
                   <div className="flex items-center gap-4">
-                    <div className="flex h-10 w-10 items-center justify-center rounded" style={{ background: "#f8f9fa" }}>
+                    <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-gray-50">
                       {integration?.icon}
                     </div>
                     <div>
                       <div className="flex items-center gap-2">
-                        <span className="text-[13px] font-medium" style={{ color: "var(--foreground)" }}>{source.name}</span>
-                        <span className="flex items-center gap-1 rounded px-1.5 py-0.5 text-[10px] font-medium" style={{ background: "#f0fdf4", color: "#16a34a" }}>
-                          <span className="h-1.5 w-1.5 rounded-full" style={{ background: "#16a34a" }} />
+                        <span className="text-[13px] font-medium text-gray-900">{source.name}</span>
+                        <span className="flex items-center gap-1 rounded bg-green-50 px-1.5 py-0.5 text-[10px] font-medium text-green-700 ring-1 ring-inset ring-green-600/20">
+                          <span className="h-1.5 w-1.5 rounded-full bg-green-600" />
                           Connected
                         </span>
                       </div>
-                      <p className="text-xs mt-0.5" style={{ color: "var(--muted)" }}>
+                      <p className="text-xs mt-0.5 text-gray-500">
                         Connected {new Date(source.connectedAt).toLocaleDateString()}
                       </p>
                     </div>
                   </div>
                   <button
                     onClick={() => disconnectSource(source.id)}
-                    className="rounded px-3 py-1.5 text-[11px] font-medium transition-colors"
-                    style={{ color: "#dc2626", border: "1px solid #fecaca" }}
+                    className="rounded-lg border border-red-200 px-3 py-1.5 text-[11px] font-medium text-red-600 hover:bg-red-50 transition-colors"
                   >
                     Disconnect
                   </button>
@@ -158,33 +157,33 @@ export default function DataSourcesPage() {
       )}
 
       {/* Available Integrations */}
-      <div className="rounded border" style={{ background: "var(--card)", borderColor: "var(--border)" }}>
-        <div className="px-5 py-4" style={{ borderColor: "var(--border)" }}>
-          <h2 className="text-sm font-semibold" style={{ color: "var(--foreground)" }}>Available Integrations</h2>
+      <div className="rounded-xl border border-gray-200 bg-white shadow-sm">
+        <div className="border-b border-gray-100 px-5 py-4">
+          <h2 className="text-sm font-semibold text-gray-900">Available Integrations</h2>
         </div>
-        <div className="divide-y" style={{ borderColor: "var(--border)" }}>
+        <div className="divide-y divide-gray-100">
           {integrations.map((integration) => {
             const isConfiguring = configuring === integration.id;
             const isConnected = connectedTypes.has(integration.id);
 
             return (
-              <div key={integration.id} className="px-5 py-5">
+              <div key={integration.id} className="px-5 py-5 hover:bg-gray-50 transition-colors bg-white">
                 <div className="flex items-start justify-between">
                   <div className="flex items-start gap-4">
-                    <div className="flex h-10 w-10 items-center justify-center rounded" style={{ background: "#f8f9fa" }}>
+                    <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-gray-50">
                       {integration.icon}
                     </div>
                     <div>
                       <div className="flex items-center gap-2">
-                        <span className="text-[13px] font-semibold" style={{ color: "var(--foreground)" }}>{integration.name}</span>
+                        <span className="text-[13px] font-semibold text-gray-900">{integration.name}</span>
                         {isConnected && (
-                          <span className="text-[10px] font-medium px-1.5 py-0.5 rounded" style={{ background: "#f0fdf4", color: "#16a34a" }}>Active</span>
+                          <span className="rounded bg-green-50 px-1.5 py-0.5 text-[10px] font-medium text-green-700 ring-1 ring-inset ring-green-600/20">Active</span>
                         )}
                       </div>
-                      <p className="text-xs mt-0.5 max-w-md" style={{ color: "var(--muted)" }}>{integration.description}</p>
+                      <p className="text-xs mt-0.5 max-w-md text-gray-500">{integration.description}</p>
                       <div className="flex flex-wrap gap-1.5 mt-2">
                         {integration.monitors.map((m) => (
-                          <span key={m} className="rounded px-2 py-0.5 text-[10px]" style={{ background: "var(--background)", color: "var(--muted)", border: "1px solid var(--border)" }}>
+                          <span key={m} className="rounded border border-gray-200 bg-white px-2 py-0.5 text-[10px] text-gray-500">
                             {m}
                           </span>
                         ))}
@@ -194,51 +193,49 @@ export default function DataSourcesPage() {
                   {!isConfiguring && (
                     <button
                       onClick={() => startConfigure(integration)}
-                      className="rounded-sm px-4 py-2 text-sm font-medium transition-colors"
-                      style={{
-                        background: isConnected ? "var(--background)" : "var(--accent)",
-                        color: isConnected ? "var(--accent)" : "white",
-                        border: isConnected ? "1px solid var(--border)" : "none",
-                      }}
+                      className={`rounded-lg px-4 py-2 text-sm font-medium transition-colors shadow-sm ${
+                        isConnected
+                          ? "border border-gray-200 bg-white text-gray-700 hover:bg-gray-50"
+                          : "bg-blue-600 text-white hover:bg-blue-700"
+                      }`}
                     >
-                      {isConnected ? "Add Another" : "Connect"}
+                      {isConnected ? "Configure Another" : "Connect"}
                     </button>
                   )}
                 </div>
 
-                {/* Configuration Form */}
                 {isConfiguring && (
-                  <div className="mt-4 ml-14 rounded border p-4 space-y-3" style={{ borderColor: "var(--border)", background: "var(--background)" }}>
-                    {integration.fields.map((field) => (
-                      <div key={field.key}>
-                        <label className="block text-[11px] font-medium uppercase tracking-wider mb-1" style={{ color: "var(--muted)" }}>
-                          {field.label}
-                        </label>
-                        <input
-                          type={field.type || "text"}
-                          placeholder={field.placeholder}
-                          value={formData[field.key] || ""}
-                          onChange={(e) => setFormData({ ...formData, [field.key]: e.target.value })}
-                          className="w-full rounded border px-3 py-2 text-sm"
-                          style={{ background: "var(--input-bg)", borderColor: "var(--input-border)", color: "var(--foreground)" }}
-                        />
-                      </div>
-                    ))}
-                    <div className="flex gap-2 pt-1">
+                  <div className="mt-5 rounded-xl border border-gray-200 bg-gray-50/50 p-5">
+                    <h3 className="text-sm font-semibold text-gray-900 mb-4">Configure {integration.name}</h3>
+                    <div className="grid grid-cols-2 gap-4">
+                      {integration.fields.map((field) => (
+                        <div key={field.key} className={field.type === "password" ? "col-span-1" : "col-span-2"}>
+                          <label className="block text-[11px] font-medium uppercase tracking-wider text-gray-500 mb-1.5">
+                            {field.label}
+                          </label>
+                          <input
+                            type={field.type || "text"}
+                            placeholder={field.placeholder}
+                            value={formData[field.key] || ""}
+                            onChange={(e) => setFormData({ ...formData, [field.key]: e.target.value })}
+                            className="w-full rounded-lg border-gray-300 bg-white text-sm focus:border-blue-500 focus:ring-blue-500"
+                          />
+                        </div>
+                      ))}
+                    </div>
+                    <div className="mt-4 flex justify-end gap-3">
+                      <button
+                        onClick={cancelConfigure}
+                        className="rounded-lg px-4 py-2 text-sm font-medium text-gray-600 hover:text-gray-900"
+                      >
+                        Cancel
+                      </button>
                       <button
                         onClick={() => saveSource(integration)}
                         disabled={saving || integration.fields.some((f) => !formData[f.key])}
-                        className="rounded-sm px-4 py-2 text-sm font-medium text-white disabled:opacity-50"
-                        style={{ background: "var(--accent)" }}
+                        className="rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-blue-700 disabled:opacity-50"
                       >
                         {saving ? "Connecting..." : "Connect Source"}
-                      </button>
-                      <button
-                        onClick={cancelConfigure}
-                        className="rounded-sm px-4 py-2 text-sm font-medium"
-                        style={{ color: "var(--muted)" }}
-                      >
-                        Cancel
                       </button>
                     </div>
                   </div>
@@ -250,8 +247,8 @@ export default function DataSourcesPage() {
       </div>
 
       {/* How it works */}
-      <div className="rounded border p-5" style={{ background: "var(--card)", borderColor: "var(--border)" }}>
-        <p className="text-[11px] font-semibold uppercase tracking-wider" style={{ color: "var(--accent)" }}>How Monitoring Works</p>
+      <div className="rounded-xl border border-gray-200 bg-white p-5 shadow-sm">
+        <p className="text-[11px] font-semibold uppercase tracking-wider text-blue-600">How Monitoring Works</p>
         <div className="mt-3 grid grid-cols-3 gap-4">
           {[
             { title: "Ingest", desc: "Messages and events are pulled from connected sources in real-time or at scheduled intervals." },
@@ -259,11 +256,11 @@ export default function DataSourcesPage() {
             { title: "Alert", desc: "Flagged events appear in the Compliance dashboard with severity levels and recommended actions." },
           ].map((step, i) => (
             <div key={i}>
-              <p className="text-[13px] font-medium" style={{ color: "var(--foreground)" }}>
-                <span className="mr-2 inline-flex h-5 w-5 items-center justify-center rounded-full text-[10px] font-bold text-white" style={{ background: "var(--accent)" }}>{i + 1}</span>
+              <p className="text-[13px] font-medium text-gray-900">
+                <span className="mr-2 inline-flex h-5 w-5 items-center justify-center rounded-full bg-blue-100 text-[10px] font-bold text-blue-700">{i + 1}</span>
                 {step.title}
               </p>
-              <p className="mt-1 text-xs leading-relaxed" style={{ color: "var(--muted)" }}>{step.desc}</p>
+              <p className="mt-1 text-xs leading-relaxed text-gray-500">{step.desc}</p>
             </div>
           ))}
         </div>

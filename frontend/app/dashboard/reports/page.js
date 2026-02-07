@@ -11,15 +11,23 @@ const typeLabel = {
   document: "Documents",
 };
 
+const statusStyles = {
+  success: "bg-green-50 text-green-700 ring-1 ring-inset ring-green-600/20",
+  error: "bg-red-50 text-red-700 ring-1 ring-inset ring-red-600/10",
+  pending: "bg-blue-50 text-blue-700 ring-1 ring-inset ring-blue-700/10",
+};
+
 export default function ReportsPage() {
   const [reports, setReports] = useState([]);
   const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     loadReports();
   }, []);
 
   async function loadReports() {
+    setLoading(true);
     try {
       const res = await fetch(`${API}/api/reports`);
       const data = await res.json();
@@ -28,6 +36,8 @@ export default function ReportsPage() {
       setError("");
     } catch (err) {
       setError(err.message);
+    } finally {
+      setLoading(false);
     }
   }
 
@@ -35,56 +45,54 @@ export default function ReportsPage() {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-xl font-semibold" style={{ color: "var(--foreground)" }}>Reports</h1>
-          <p className="mt-1 text-sm" style={{ color: "var(--muted)" }}>
+          <h1 className="text-xl font-semibold text-gray-900">Reports</h1>
+          <p className="mt-1 text-sm text-gray-500">
             Generated from reconciliation, compliance, and risk runs
           </p>
         </div>
         <button
           onClick={loadReports}
-          className="rounded-sm px-3 py-1.5 text-xs font-medium"
-          style={{ background: "var(--background)", color: "var(--accent)", border: "1px solid var(--border)" }}
+          disabled={loading}
+          className="rounded-lg border border-gray-200 bg-white hover:bg-gray-50 px-3 py-1.5 text-xs font-medium text-blue-600 shadow-sm transition-colors disabled:opacity-50"
         >
-          Refresh
+          {loading ? "Refreshing..." : "Refresh"}
         </button>
       </div>
 
-      {error && <p className="text-xs" style={{ color: "#b54a4a" }}>{error}</p>}
+      {error && <p className="text-xs text-red-600">{error}</p>}
 
-      <div className="rounded border" style={{ background: "var(--card)", borderColor: "var(--border)" }}>
-        <div className=" px-5 py-4" style={{ borderColor: "var(--border)" }}>
-          <h2 className="text-sm font-semibold" style={{ color: "var(--foreground)" }}>Report History</h2>
+      <div className="rounded-xl border border-gray-200 bg-white shadow-sm">
+        <div className="border-b border-gray-100 px-5 py-4">
+          <h2 className="text-sm font-semibold text-gray-900">Report History</h2>
         </div>
         {reports.length === 0 ? (
           <div className="px-5 py-8 text-center">
-            <p className="text-sm" style={{ color: "var(--muted)" }}>No reports generated yet.</p>
+            <p className="text-sm text-gray-500">No reports generated yet.</p>
           </div>
         ) : (
-          <div className="divide-y" style={{ borderColor: "var(--border)" }}>
+          <div className="divide-y divide-gray-100">
             {reports.map((r) => (
-              <div key={r._id} className="px-5 py-4">
+              <div key={r._id} className="px-5 py-4 hover:bg-gray-50/50 transition-colors">
                 <div className="flex items-center justify-between">
                   <div>
-                    <p className="text-[13px] font-medium" style={{ color: "var(--foreground)" }}>
-                      {typeLabel[r.type] || r.type} — {r.title}
-                    </p>
-                    <p className="text-xs" style={{ color: "var(--muted)" }}>{r.summary || "—"}</p>
-                  </div>
-                  <div className="text-right">
-                    <span className="text-[11px]" style={{ color: "var(--muted)" }}>
-                      {new Date(r.createdAt).toLocaleString()}
-                    </span>
-                    <div className="mt-1">
+                    <div className="flex items-center gap-2">
+                      <p className="text-[13px] font-medium text-gray-900">
+                        {typeLabel[r.type] || r.type} — {r.title}
+                      </p>
                       <span
-                        className="rounded-sm px-2 py-0.5 text-[10px] font-medium"
-                        style={{
-                          background: r.status === "error" ? "#fee2e2" : "#dcfce7",
-                          color: r.status === "error" ? "#dc2626" : "#16a34a",
-                        }}
+                        className={`inline-flex items-center rounded-md px-2 py-1 text-[10px] font-medium ${
+                          statusStyles[r.status] || statusStyles.pending
+                        }`}
                       >
                         {r.status}
                       </span>
                     </div>
+                    <p className="mt-1 text-xs text-gray-500">{r.summary || "—"}</p>
+                  </div>
+                  <div className="text-right">
+                    <span className="text-[11px] text-gray-400">
+                      {new Date(r.createdAt).toLocaleString()}
+                    </span>
                   </div>
                 </div>
               </div>
