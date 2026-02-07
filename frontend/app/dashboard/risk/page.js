@@ -4,8 +4,8 @@ import { useEffect, useState } from "react";
 
 const API = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5001";
 
-const riskColor = { Low: "#3d8c5c", Medium: "#c4913b", High: "#b54a4a" };
-const sevColor = { high: "#b54a4a", medium: "#c4913b", low: "#3d8c5c" };
+const riskColor = { Low: "#16a34a", Medium: "#2563eb", High: "#dc2626" };
+const sevColor = { high: "#dc2626", medium: "#2563eb", low: "#16a34a" };
 
 export default function RiskPage() {
   const [running, setRunning] = useState(false);

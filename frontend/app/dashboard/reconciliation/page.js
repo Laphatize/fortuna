@@ -5,10 +5,10 @@ import { useEffect, useState } from "react";
 const API = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5001";
 
 const statusColors = {
-  matched: { bg: "#e8f5e9", color: "#2e7d32", label: "Matched" },
-  exception: { bg: "#fce4ec", color: "#b54a4a", label: "Exception" },
-  pending: { bg: "#fff3e0", color: "#c4913b", label: "Pending" },
-  resolved: { bg: "#e0f2f1", color: "#00796b", label: "Resolved" },
+  matched: { bg: "#dcfce7", color: "#16a34a", label: "Matched" },
+  exception: { bg: "#fee2e2", color: "#dc2626", label: "Exception" },
+  pending: { bg: "#dbeafe", color: "#2563eb", label: "Pending" },
+  resolved: { bg: "#ccfbf1", color: "#0f766e", label: "Resolved" },
 };
 
 export default function ReconciliationPage() {
@@ -178,19 +178,19 @@ export default function ReconciliationPage() {
       <div className="grid grid-cols-4 gap-4">
         <div className="rounded border p-5" style={{ background: "var(--card)", borderColor: "var(--border)" }}>
           <p className="text-[11px] font-semibold uppercase tracking-wider" style={{ color: "var(--muted)" }}>Matched</p>
-          <p className="mt-2 text-2xl font-semibold" style={{ color: "#2e7d32" }}>{matchedCount}</p>
+          <p className="mt-2 text-2xl font-semibold" style={{ color: "#16a34a" }}>{matchedCount}</p>
         </div>
         <div className="rounded border p-5" style={{ background: "var(--card)", borderColor: "var(--border)" }}>
           <p className="text-[11px] font-semibold uppercase tracking-wider" style={{ color: "var(--muted)" }}>Exceptions</p>
-          <p className="mt-2 text-2xl font-semibold" style={{ color: "#b54a4a" }}>{exceptionCount}</p>
+          <p className="mt-2 text-2xl font-semibold" style={{ color: "#dc2626" }}>{exceptionCount}</p>
         </div>
         <div className="rounded border p-5" style={{ background: "var(--card)", borderColor: "var(--border)" }}>
           <p className="text-[11px] font-semibold uppercase tracking-wider" style={{ color: "var(--muted)" }}>Pending</p>
-          <p className="mt-2 text-2xl font-semibold" style={{ color: "#c4913b" }}>{pendingCount}</p>
+          <p className="mt-2 text-2xl font-semibold" style={{ color: "#2563eb" }}>{pendingCount}</p>
         </div>
         <div className="rounded border p-5" style={{ background: "var(--card)", borderColor: "var(--border)" }}>
           <p className="text-[11px] font-semibold uppercase tracking-wider" style={{ color: "var(--muted)" }}>Resolved</p>
-          <p className="mt-2 text-2xl font-semibold" style={{ color: "#00796b" }}>{resolvedCount}</p>
+          <p className="mt-2 text-2xl font-semibold" style={{ color: "#0f766e" }}>{resolvedCount}</p>
         </div>
       </div>
 

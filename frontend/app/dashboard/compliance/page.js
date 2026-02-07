@@ -5,9 +5,9 @@ import { useEffect, useState } from "react";
 const API = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5001";
 
 const severityStyles = {
-  high: { bg: "#fce4ec", color: "#b54a4a" },
-  medium: { bg: "#fff3e0", color: "#c4913b" },
-  low: { bg: "#e8f5e9", color: "#2e7d32" },
+  high: { bg: "#fee2e2", color: "#dc2626" },
+  medium: { bg: "#dbeafe", color: "#2563eb" },
+  low: { bg: "#dcfce7", color: "#16a34a" },
 };
 
 export default function CompliancePage() {
@@ -208,7 +208,7 @@ export default function CompliancePage() {
                   <div className="mt-2 h-1 w-full overflow-hidden rounded-sm" style={{ background: "var(--border)" }}>
                     <div className="h-full rounded-sm transition-all" style={{
                       width: `${reg.score}%`,
-                      background: reg.score >= 95 ? "#3d8c5c" : reg.score >= 85 ? "#c4913b" : "#b54a4a",
+                      background: reg.score >= 95 ? "#16a34a" : reg.score >= 85 ? "#2563eb" : "#dc2626",
                     }} />
                   </div>
                   <p className="mt-1 text-[11px]" style={{ color: "var(--muted)" }}>{reg.status}</p>

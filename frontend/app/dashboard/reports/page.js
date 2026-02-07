@@ -78,8 +78,8 @@ export default function ReportsPage() {
                       <span
                         className="rounded-sm px-2 py-0.5 text-[10px] font-medium"
                         style={{
-                          background: r.status === "error" ? "#fce4ec" : "#e8f5e9",
-                          color: r.status === "error" ? "#b54a4a" : "#2e7d32",
+                          background: r.status === "error" ? "#fee2e2" : "#dcfce7",
+                          color: r.status === "error" ? "#dc2626" : "#16a34a",
                         }}
                       >
                         {r.status}

@@ -5,9 +5,9 @@ import { useEffect, useRef, useState } from "react";
 const API = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5001";
 
 const statusStyles = {
-  processed: { bg: "#e8f5e9", color: "#2e7d32", label: "Processed" },
-  uploaded: { bg: "#e3f2fd", color: "#1565c0", label: "Uploaded" },
-  error: { bg: "#fce4ec", color: "#b54a4a", label: "Error" },
+  processed: { bg: "#dcfce7", color: "#16a34a", label: "Processed" },
+  uploaded: { bg: "#dbeafe", color: "#2563eb", label: "Uploaded" },
+  error: { bg: "#fee2e2", color: "#dc2626", label: "Error" },
 };
 
 export default function DocumentsPage() {
@@ -253,7 +253,7 @@ export default function DocumentsPage() {
                         <tr key={i}>
                           <td className="py-2 text-[13px]" style={{ color: "var(--muted)" }}>{f.field_name}</td>
                           <td className="py-2 text-[13px] font-medium" style={{ color: "var(--foreground)" }}>{formatValue(f.value)}</td>
-                          <td className="py-2 text-right text-[13px] tabular-nums" style={{ color: f.confidence >= 90 ? "#3d8c5c" : "#c4913b" }}>{f.confidence}%</td>
+                          <td className="py-2 text-right text-[13px] tabular-nums" style={{ color: f.confidence >= 90 ? "#16a34a" : "#2563eb" }}>{f.confidence}%</td>
                         </tr>
                       ))}
                     </tbody>

@@ -91,16 +91,16 @@ export default function DashboardLayout({ children }) {
         style={{ background: "var(--card)", borderColor: "var(--border)" }}
       >
         {/* Logo */}
-        <div className="flex items-center gap-2.5 px-5 py-5">
-          <div className="flex h-7 w-7 items-center justify-center" style={{ background: "var(--accent)" }}>
-            <span className="text-xs font-bold text-white">T</span>
-          </div>
-          <span className="text-sm font-semibold" style={{ color: "var(--foreground)" }}>Tartan</span>
-        </div>
+     
+     
+        <div className="bg-blue-500 flex items-center gap-2.5 px-5 py-2">
+     
+          <h1 className="px-2 text-2xl text-white mx-auto text-center" style={{ fontFamily: "var(--font-instrument-serif)", letterSpacing: "-0.01em" }}>Assisto</h1>
+      </div>
 
         {/* Nav Section */}
-        <div className="px-3 py-2">
-          <p className="mb-2 px-2 text-[10px] font-semibold uppercase tracking-widest" style={{ color: "var(--muted)" }}>
+        <div className="px-3 mt-4">
+          <p className="hidden mb-2 px-2 text-[10px] font-semibold uppercase tracking-widest" style={{ color: "var(--muted)" }}>
             Operations
           </p>
           <nav className="space-y-0.5">
