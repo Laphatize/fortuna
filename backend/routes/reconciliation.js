@@ -43,12 +43,12 @@ router.post("/analyze", async (req, res) => {
       return res.status(400).json({ error: "transactions array required" });
     }
 
-    if (!process.env.OPENAI_API_KEY) {
-      return res.status(500).json({ error: "OPENAI_API_KEY not set" });
+    if (!process.env.DEDALUS_API_KEY && !process.env.OPENAI_API_KEY) {
+      return res.status(500).json({ error: "DEDALUS_API_KEY or OPENAI_API_KEY not set" });
     }
 
     const response = await openai.chat.completions.create({
-      model: "gpt-4o-mini",
+      model: "openai/gpt-4o-mini",
       messages: [
         {
           role: "system",
